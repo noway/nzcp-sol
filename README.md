@@ -14,7 +14,7 @@ npx hardhat help
 
 ## Gas Estimation
 
-`verifySignature`: 2034344
+`nzcp.verifySignature`: 2034344
 
 at 80 Gwei:
 
