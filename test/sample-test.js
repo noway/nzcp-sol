@@ -75,7 +75,7 @@ describe("NZCP", function () {
 
 
 
-  it("Should verify signature 1", async function () {
+  it("Should verify signature with NZCP example pubkey via nzcp", async function () {
     const nzcp = await setupNZCP()
     const messageHash = "0x271CE33D671A2D3B816D788135F4343E14BC66802F8CD841FAAC939E8C11F3EE";
     const r = "0xD2E07B1DD7263D833166BDBB4F1A093837A905D7ECA2EE836B6B2ADA23C23154";
