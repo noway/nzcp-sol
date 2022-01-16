@@ -6,7 +6,7 @@ const ethereumJSUtil = require('ethereumjs-util');
 
 async function setupNZCP() {
   const NZCP = await ethers.getContractFactory("NZCP");
-  const nzcp = await NZCP.deploy("Hello, world!");
+  const nzcp = await NZCP.deploy();
   await nzcp.deployed();
   return nzcp
 }
@@ -25,39 +25,6 @@ const LIVE_X = "0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DA
 const LIVE_Y = "0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662";
 
 describe("NZCP", function () {
-  /*
-  it("Should return the new greeting once it's changed", async function () {
-
-    const nzcp = await setupNZCP()
-    expect(await nzcp.greet()).to.equal("Hello, world!");
-
-    const setGreetingTx = await nzcp.setGreeting("Hola, mundo!");
-
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
-
-    expect(await nzcp.greet()).to.equal("Hola, mundo!");
-  });
-  it("Should verify greeting", async function () {
-    const nzcp = await setupNZCP()
-
-    const setGreetingTx = await nzcp.setGreeting("Hola, mundo!");
-
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
-
-    expect(await nzcp.verifyGreeting("Hola, mundo!")).to.equal(true);
-  });
-  it("Should verify signature 2", async function () {
-    const nzcp = await setupNZCP()
-    const messageHash = "0x271CE33D671A2D3B816D788135F4343E14BC66802F8CD841FAAC939E8C11F3EE";
-    const r = "0xFBA88A529F675D6686EE632B09EC581AB08F72B458904BB3396D10FA66D11477";
-    const s = "0xD2E07B1DD7263D833166BDBB4F1A093837A905D7ECA2EE836B6B2ADA23C23154";
-    const v = 0x54;
-    expect(await nzcp.verifySignature(messageHash, r, s, v)).to.equal(true);
-
-  })
-  */
   it("Should verify signature with EC", async function () {
 
     const ec = await setupEC()
