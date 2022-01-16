@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require("hardhat-gas-reporter");
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -16,4 +17,9 @@ module.exports = {
     cache: "./cache",
     artifacts: "./artifacts"
   },
+
+  gasReporter: {
+    currency: 'USD',
+    gasPrice: 80
+  }
 };
