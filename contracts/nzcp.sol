@@ -20,4 +20,9 @@ contract NZCP is EllipticCurve {
             return validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]);
         }
     }
+
+    function verifyToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public pure returns (bool) {
+        bytes32 messageHash = sha256(buffer);
+        return verifySignature(messageHash, rs, is_example);
+    }
 }
