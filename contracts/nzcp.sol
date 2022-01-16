@@ -6,8 +6,8 @@ import "./EllipticCurve.sol";
 contract NZCP is EllipticCurve {
     string private greeting;
 
-    string public constant x = "zRR-XGsCp12Vvbgui4DD6O6cqmhfPuXMhi1OxPl8760";
-    string public constant y = "Iv5SU6FuW-TRYh5_GOrJlcV_gpF_GpFQhCOD8LSk3T0";
+    uint public constant EXAMPLE_X = 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD;
+    uint public constant EXAMPLE_Y = 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D;
 
     constructor(string memory _greeting) {
         console.log("Deploying a NZCP with greeting:", _greeting);
@@ -31,8 +31,8 @@ contract NZCP is EllipticCurve {
         return compareStrings(greeting, _greeting);
     }
     
-    function verifySignature(bytes32 message, uint[2] memory rs, uint[2] memory Q) public view returns (bool) {
-        bool isValid = validateSignature(message, rs, Q);
+    function verifySignature(bytes32 message, uint[2] memory rs) public view returns (bool) {
+        bool isValid = validateSignature(message, rs, [EXAMPLE_X, EXAMPLE_Y]);
         return isValid;
     }
 }
