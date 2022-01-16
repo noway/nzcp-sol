@@ -1,6 +1,7 @@
 pragma solidity ^0.8.11;
 
 import "hardhat/console.sol";
+import "./EllipticCurve.sol";
 
 contract NZCP {
     string private greeting;
@@ -30,11 +31,8 @@ contract NZCP {
         return compareStrings(greeting, _greeting);
     }
     
-    // TODO: get v from signature
-    function verifySignature(bytes32 messageHash, bytes32 r, bytes32 s, uint8 v) public view returns (bool) {
-        address signer = ecrecover(messageHash, v, r, s);
-        console.log("Signer:", signer);
-        return true;
-        // return compareStrings(greeting, _greeting);
+    function verifySignature(bytes32 message, uint[2] memory rs, uint[2] memory Q) public view returns (bool) {
+        bool isValid = EllipticCurve.validateSignature(message, rs, Q);
+        return isValid;
     }
 }
