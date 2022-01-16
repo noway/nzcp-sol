@@ -1,4 +1,4 @@
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
 /**
  * @title   EllipticCurve
@@ -44,8 +44,10 @@ contract EllipticCurve {
         uint q;
 
         while (r2 != 0) {
-            q = r1 / r2;
-            (t1, t2, r1, r2) = (t2, t1 - int(q) * t2, r2, r1 - q * r2);
+            unchecked { // TODO: remove unchecked
+                q = r1 / r2;
+                (t1, t2, r1, r2) = (t2, t1 - int(q) * t2, r2, r1 - q * r2);
+            }
         }
 
         if (t1 < 0)
