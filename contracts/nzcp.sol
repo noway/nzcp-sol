@@ -47,7 +47,7 @@ contract NZCP is EllipticCurve {
 
     function parseToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view returns (bool) {
 
-        string memory claims = new string(buffer.length);
+        bytes memory claims = new bytes(buffer.length);
         uint claimsptr;
         assembly { claimsptr := add(claims, 32) }
 
@@ -58,7 +58,14 @@ contract NZCP is EllipticCurve {
 
         memcpy(claimsptr, bufferptr, buffer.length);
 
-        console.log(claims);
+        uint v = uint8(claims[0]);
+        uint cbor_type = v >> 5;
+        require(cbor_type == 5);
+        uint x = v & 31;
+        require(x <= 23); // only "small" uints are allowed
+
+        console.log(x);
+
 
         // bytes32 messageHash = sha256(buffer);
 
