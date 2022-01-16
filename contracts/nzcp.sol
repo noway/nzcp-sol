@@ -76,7 +76,7 @@ contract NZCP is EllipticCurve {
         require(cbor_type == MAJOR_TYPE_MAP);
         uint x = v & 31;
         require(x <= 23); // only "small" uints are allowed
-        require(x == 5); // only 5 map elements allowed
+        require(x == 5); // only 5 map elements allowed; TODO: change?
 
         current_pos++;
 
