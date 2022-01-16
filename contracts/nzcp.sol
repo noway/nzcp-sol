@@ -6,6 +6,16 @@ import "./EllipticCurve.sol";
 contract NZCP is EllipticCurve {
     string private greeting;
 
+    uint8 private constant MAJOR_TYPE_INT = 0;
+    uint8 private constant MAJOR_TYPE_NEGATIVE_INT = 1;
+    uint8 private constant MAJOR_TYPE_BYTES = 2;
+    uint8 private constant MAJOR_TYPE_STRING = 3;
+    uint8 private constant MAJOR_TYPE_ARRAY = 4;
+    uint8 private constant MAJOR_TYPE_MAP = 5;
+    uint8 private constant MAJOR_TYPE_TAG = 6;
+    uint8 private constant MAJOR_TYPE_CONTENT_FREE = 7;
+
+
     uint public constant EXAMPLE_X = 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD;
     uint public constant EXAMPLE_Y = 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D;
 
@@ -58,13 +68,35 @@ contract NZCP is EllipticCurve {
 
         memcpy(claimsptr, bufferptr, buffer.length);
 
-        uint v = uint8(claims[0]);
+
+        uint current_pos = 0;
+
+        uint v = uint8(claims[current_pos]);
         uint cbor_type = v >> 5;
-        require(cbor_type == 5);
+        require(cbor_type == MAJOR_TYPE_MAP);
         uint x = v & 31;
         require(x <= 23); // only "small" uints are allowed
+        require(x == 5); // only 5 map elements allowed
 
-        console.log(x);
+        current_pos++;
+
+        uint v1 = uint8(claims[current_pos]);
+        uint cbor_type1 = v1 >> 5;
+        require(cbor_type1 == MAJOR_TYPE_INT); // int
+        uint key = v & 31;
+        require(key <= 23); // only "small" uints are allowed
+        require(key == 5); // TODO: object key order shouldn't matter
+
+        current_pos++;
+
+        uint v2 = uint8(claims[current_pos]);
+        uint cbor_type2 = v2 >> 5;
+        require(cbor_type2 == MAJOR_TYPE_STRING); // string
+        uint length = v & 31;
+        console.log(length);
+
+
+        
 
 
         // bytes32 messageHash = sha256(buffer);
