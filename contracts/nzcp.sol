@@ -45,7 +45,7 @@ contract NZCP is EllipticCurve {
         return verifySignature(messageHash, rs, is_example);
     }
 
-    function parseToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public returns (bool) {
+    function parseToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view returns (bool) {
 
         string memory claims = new string(buffer.length);
         uint claimsptr;
