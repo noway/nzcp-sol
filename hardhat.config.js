@@ -9,7 +9,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 module.exports = {
-  solidity: "0.6.0",
+  solidity: "0.7.0",
   paths: {
     sources: "./contracts",
     tests: "./test",
