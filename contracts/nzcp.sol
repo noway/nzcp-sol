@@ -1,4 +1,4 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.5.0;
 
 import "hardhat/console.sol";
 
@@ -8,10 +8,10 @@ contract NZCP {
     string public constant x = "zRR-XGsCp12Vvbgui4DD6O6cqmhfPuXMhi1OxPl8760";
     string public constant y = "Iv5SU6FuW-TRYh5_GOrJlcV_gpF_GpFQhCOD8LSk3T0";
 
-    constructor(string memory _greeting) {
-        console.log("Deploying a NZCP with greeting:", _greeting);
-        greeting = _greeting;
-    }
+    // constructor(string memory _greeting) {
+    //     console.log("Deploying a NZCP with greeting:", _greeting);
+    //     greeting = _greeting;
+    // }
 
     function greet() public view returns (string memory) {
         return greeting;

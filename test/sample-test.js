@@ -19,6 +19,7 @@ async function setupEC() {
 }
 
 describe("NZCP", function () {
+  /*
   it("Should return the new greeting once it's changed", async function () {
 
     const nzcp = await setupNZCP()
@@ -60,7 +61,7 @@ describe("NZCP", function () {
     expect(await nzcp.verifySignature(messageHash, r, s, v)).to.equal(true);
 
   })
-  /*
+  */
   it("Should verify signature with EC", async function () {
     const ec = await setupEC()
     const messageHash = "0x271CE33D671A2D3B816D788135F4343E14BC66802F8CD841FAAC939E8C11F3EE";
@@ -71,7 +72,6 @@ describe("NZCP", function () {
     expect(await ec.validateSignature(messageHash, [r, s], [x, y])).to.equal(true);
 
   })
-  */
 
 
   it("Should verify signature with EC", async function () {
