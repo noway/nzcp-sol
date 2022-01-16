@@ -12,12 +12,12 @@ contract NZCP is EllipticCurve {
     uint public constant LIVE_X = 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7;
     uint public constant LIVE_Y = 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662;
 
-    function verifySignature(bytes32 message, uint[2] memory rs, bool is_example) public pure returns (bool) {
+    function verifySignature(bytes32 messageHash, uint[2] memory rs, bool is_example) public pure returns (bool) {
         if (is_example) {
-            return validateSignature(message, rs, [EXAMPLE_X, EXAMPLE_Y]);
+            return validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]);
         }
         else {
-            return validateSignature(message, rs, [LIVE_X, LIVE_Y]);
+            return validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]);
         }
     }
 }
