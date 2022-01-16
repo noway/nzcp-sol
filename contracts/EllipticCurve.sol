@@ -14,7 +14,7 @@ pragma solidity ^0.8.11;
  * @dev     NOTE: To disambiguate public keys when verifying signatures, activate
  *          condition 'rs[1] > lowSmax' in validateSignature().
  */
-contract EllipticCurve {
+library EllipticCurve {
 
     // Set parameters for curve.
     uint constant a = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC;
