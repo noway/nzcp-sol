@@ -147,6 +147,9 @@ contract NZCP is EllipticCurve {
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
                 console.log("got to string!!", key);
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("vc"))) {
+                    console.log("about to parse verified credential");
+                }
                 return pos;
             }
             else {
