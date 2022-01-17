@@ -69,6 +69,20 @@ contract NZCP is EllipticCurve {
             require(false, "x is not in supported range");
         }
     }
+    function decodeString(bytes memory buffer, uint pos, uint len) private view returns (uint, string memory) {
+        string memory str = new string(len);
+
+        uint strptr;
+        assembly { strptr := add(str, 32) }
+        
+        uint skip = 32 + pos;
+        uint bufferptr;
+        assembly { bufferptr := add(buffer, skip) }
+
+        memcpy(strptr, bufferptr, len);
+
+        return (pos + len, str);
+    }
 
     function skipCBORValue(bytes memory buffer, uint pos) private view returns (uint) {
         uint v = uint8(buffer[pos]);
@@ -127,7 +141,12 @@ contract NZCP is EllipticCurve {
                 pos = skipCBORValue(buffer, pos); // skip value
             }
             else if (cbor_type2 == MAJOR_TYPE_STRING) {
-                console.log("got to string!!");
+                uint len;
+                (pos, len) = decodeCBORUint(buffer, pos, v2);
+
+                string memory key;
+                (pos, key) = decodeString(buffer, pos, len);
+                console.log("got to string!!", key);
                 return pos;
             }
             else {
