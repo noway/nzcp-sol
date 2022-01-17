@@ -166,48 +166,6 @@ contract NZCP is EllipticCurve {
 
 
         decodeMap(claims, 0);
-        /*
-        uint current_pos = 0;
-
-        uint v = uint8(claims[current_pos]);
-        uint cbor_type = v >> 5;
-        require(cbor_type == MAJOR_TYPE_MAP);
-        uint x;
-        (current_pos, x) = decodeCBORUint(buffer, current_pos, v);
-        require(x == 5); // only 5 map elements allowed; TODO: change?
-
-        current_pos++;
-
-        uint v1 = uint8(claims[current_pos]);
-        uint cbor_type1 = v1 >> 5;
-        require(cbor_type1 == MAJOR_TYPE_INT); // int
-        uint key;
-        (current_pos, key) = decodeCBORUint(buffer, current_pos, v1);
-        require(key == 1); // TODO: object key order shouldn't matter
-
-        current_pos++;
-
-        uint v2 = uint8(claims[current_pos]);
-        uint cbor_type2 = v2 >> 5;
-        require(cbor_type2 == MAJOR_TYPE_STRING); // string
-        uint length = v & 31;
-        console.log(length);
-        */
-
-
-        
-
-
-        // bytes32 messageHash = sha256(buffer);
-
-        // bytes32 claims;
-        // assembly {
-        //     claims := mload(add(buffer, 27))
-        // }
-
-        // console.log(claims);
-
-        // return verifyToBeSignedBuffer(buffer, rs, is_example);
         return true;
     }
 }
