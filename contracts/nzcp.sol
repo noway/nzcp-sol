@@ -41,7 +41,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeUint(bytes memory buffer, uint pos, uint v) private view returns (uint, uint) {
+    function decodeCBORUint(bytes memory buffer, uint pos, uint v) private view returns (uint, uint) {
         uint x = v & 31;
         if (x <= 23) {
             return (pos, x);
@@ -70,35 +70,35 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function skipValue(bytes memory buffer, uint pos) private view returns (uint) {
+    function skipCBORValue(bytes memory buffer, uint pos) private view returns (uint) {
         uint v = uint8(buffer[pos]);
         pos++;
         uint cbor_type = v >> 5;
 
         if (cbor_type == MAJOR_TYPE_INT) {
             uint value;
-            (pos, value) = decodeUint(buffer, pos, v);
+            (pos, value) = decodeCBORUint(buffer, pos, v);
             console.log("skipping MAJOR_TYPE_INT", value);
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_NEGATIVE_INT) {
             console.log("skipping MAJOR_TYPE_NEGATIVE_INT");
             uint value;
-            (pos, value) = decodeUint(buffer, pos, v);
+            (pos, value) = decodeCBORUint(buffer, pos, v);
             value = ~value;
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_BYTES) {
             console.log("skipping MAJOR_TYPE_BYTES");
             uint len;
-            (pos, len) = decodeUint(buffer, pos, v);
+            (pos, len) = decodeCBORUint(buffer, pos, v);
             pos += len;
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_STRING) {
             console.log("skipping MAJOR_TYPE_STRING");
             uint len;
-            (pos, len) = decodeUint(buffer, pos, v);
+            (pos, len) = decodeCBORUint(buffer, pos, v);
             console.log("string len", len);
             pos += len;
             return pos;
@@ -114,7 +114,7 @@ contract NZCP is EllipticCurve {
         uint cbor_type = v >> 5;
         require(cbor_type == MAJOR_TYPE_MAP);
         uint map_len;
-        (pos, map_len) = decodeUint(buffer, pos, v);
+        (pos, map_len) = decodeCBORUint(buffer, pos, v);
 
         for (uint256 i = 0; i < map_len; i++) {
             uint v2 = uint8(buffer[pos]);
@@ -122,9 +122,9 @@ contract NZCP is EllipticCurve {
             uint cbor_type2 = v2 >> 5;
             if (cbor_type2 == MAJOR_TYPE_INT) {
                 uint int_key;
-                (pos, int_key) = decodeUint(buffer, pos, v2);
+                (pos, int_key) = decodeCBORUint(buffer, pos, v2);
                 console.log("got int key!!", int_key);
-                pos = skipValue(buffer, pos); // skip value
+                pos = skipCBORValue(buffer, pos); // skip value
             }
             else if (cbor_type2 == MAJOR_TYPE_STRING) {
                 console.log("got to string!!");
@@ -173,7 +173,7 @@ contract NZCP is EllipticCurve {
         uint cbor_type = v >> 5;
         require(cbor_type == MAJOR_TYPE_MAP);
         uint x;
-        (current_pos, x) = decodeUint(buffer, current_pos, v);
+        (current_pos, x) = decodeCBORUint(buffer, current_pos, v);
         require(x == 5); // only 5 map elements allowed; TODO: change?
 
         current_pos++;
@@ -182,7 +182,7 @@ contract NZCP is EllipticCurve {
         uint cbor_type1 = v1 >> 5;
         require(cbor_type1 == MAJOR_TYPE_INT); // int
         uint key;
-        (current_pos, key) = decodeUint(buffer, current_pos, v1);
+        (current_pos, key) = decodeCBORUint(buffer, current_pos, v1);
         require(key == 1); // TODO: object key order shouldn't matter
 
         current_pos++;
