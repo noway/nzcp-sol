@@ -41,10 +41,19 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeUint(uint v) private pure returns (uint) {
+    function decodeUint(bytes memory buffer, uint pos, uint v) private pure returns (uint, uint) {
         uint x = v & 31;
-        require(x <= 23); // only "small" uints are implemented
-        return x;
+        // require(x <= 23); // only "small" uints are implemented
+        if (x <= 23) {
+            return (pos, x);
+        }
+        else if (x == 24) {
+            pos++;
+            return (pos, uint8(buffer[pos]));
+        }
+        else {
+            require(false, "x is not in supported range");
+        }
     }
 
     function verifySignature(bytes32 messageHash, uint[2] memory rs, bool is_example) public pure returns (bool) {
@@ -80,7 +89,8 @@ contract NZCP is EllipticCurve {
         uint v = uint8(claims[current_pos]);
         uint cbor_type = v >> 5;
         require(cbor_type == MAJOR_TYPE_MAP);
-        uint x = decodeUint(v);
+        uint x;
+        (current_pos, x) = decodeUint(buffer, current_pos, v);
         require(x == 5); // only 5 map elements allowed; TODO: change?
 
         current_pos++;
@@ -88,7 +98,8 @@ contract NZCP is EllipticCurve {
         uint v1 = uint8(claims[current_pos]);
         uint cbor_type1 = v1 >> 5;
         require(cbor_type1 == MAJOR_TYPE_INT); // int
-        uint key = decodeUint(v1);
+        uint key;
+        (current_pos, key) = decodeUint(buffer, current_pos, v1);
         require(key == 1); // TODO: object key order shouldn't matter
 
         current_pos++;
