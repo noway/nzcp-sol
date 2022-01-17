@@ -108,7 +108,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeMap(bytes memory buffer, uint pos) private view returns (uint) {
+    function decodeClaimsMap(bytes memory buffer, uint pos) private view returns (uint) {
         uint v = uint8(buffer[pos]);
         pos++;
         uint cbor_type = v >> 5;
@@ -165,7 +165,7 @@ contract NZCP is EllipticCurve {
         memcpy(claimsptr, bufferptr, buffer.length);
 
 
-        decodeMap(claims, 0);
+        decodeClaimsMap(claims, 0);
         return true;
     }
 }
