@@ -41,20 +41,101 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeUint(bytes memory buffer, uint pos, uint v) private pure returns (uint, uint) {
+    function decodeUint(bytes memory buffer, uint pos, uint v) private view returns (uint, uint) {
         uint x = v & 31;
-        // require(x <= 23); // only "small" uints are implemented
         if (x <= 23) {
             return (pos, x);
         }
         else if (x == 24) {
+            uint value = uint8(buffer[pos]);
             pos++;
-            return (pos, uint8(buffer[pos]));
+            return (pos, value);
+        }
+        // TODO: handle 25
+        else if (x == 26) { // 32-bit
+            uint32 value;
+            value = uint8(buffer[pos]) << 24;
+            pos++;
+            value |= uint8(buffer[pos]) << 16;
+            pos++;
+            value |= uint8(buffer[pos]) << 8;
+            pos++;
+            value |= uint8(buffer[pos]);
+            pos++;
+            return (pos, value);
         }
         else {
+            console.log("x is not in supported range", x);
             require(false, "x is not in supported range");
         }
     }
+
+    function skipValue(bytes memory buffer, uint pos) private view returns (uint) {
+        uint v = uint8(buffer[pos]);
+        pos++;
+        uint cbor_type = v >> 5;
+
+        if (cbor_type == MAJOR_TYPE_INT) {
+            uint value;
+            (pos, value) = decodeUint(buffer, pos, v);
+            console.log("skipping MAJOR_TYPE_INT", value);
+            return pos;
+        }
+        else if (cbor_type == MAJOR_TYPE_NEGATIVE_INT) {
+            console.log("skipping MAJOR_TYPE_NEGATIVE_INT");
+            uint value;
+            (pos, value) = decodeUint(buffer, pos, v);
+            value = ~value;
+            return pos;
+        }
+        else if (cbor_type == MAJOR_TYPE_BYTES) {
+            console.log("skipping MAJOR_TYPE_BYTES");
+            uint len;
+            (pos, len) = decodeUint(buffer, pos, v);
+            pos += len;
+            return pos;
+        }
+        else if (cbor_type == MAJOR_TYPE_STRING) {
+            console.log("skipping MAJOR_TYPE_STRING");
+            uint len;
+            (pos, len) = decodeUint(buffer, pos, v);
+            console.log("string len", len);
+            pos += len;
+            return pos;
+        }
+        else {
+            require(false, "this cbor_type is not supported");
+        }
+    }
+
+    function decodeMap(bytes memory buffer, uint pos) private view returns (uint) {
+        uint v = uint8(buffer[pos]);
+        pos++;
+        uint cbor_type = v >> 5;
+        require(cbor_type == MAJOR_TYPE_MAP);
+        uint map_len;
+        (pos, map_len) = decodeUint(buffer, pos, v);
+
+        for (uint256 i = 0; i < map_len; i++) {
+            uint v2 = uint8(buffer[pos]);
+            pos++;
+            uint cbor_type2 = v2 >> 5;
+            if (cbor_type2 == MAJOR_TYPE_INT) {
+                uint int_key;
+                (pos, int_key) = decodeUint(buffer, pos, v2);
+                console.log("got int key!!", int_key);
+                pos = skipValue(buffer, pos); // skip value
+            }
+            else if (cbor_type2 == MAJOR_TYPE_STRING) {
+                console.log("got to string!!");
+                return pos;
+            }
+            else {
+                require(false, "map key is of an supported type");
+            }
+        }
+    }
+
 
     function verifySignature(bytes32 messageHash, uint[2] memory rs, bool is_example) public pure returns (bool) {
         if (is_example) {
@@ -84,6 +165,8 @@ contract NZCP is EllipticCurve {
         memcpy(claimsptr, bufferptr, buffer.length);
 
 
+        decodeMap(claims, 0);
+        /*
         uint current_pos = 0;
 
         uint v = uint8(claims[current_pos]);
@@ -109,6 +192,7 @@ contract NZCP is EllipticCurve {
         require(cbor_type2 == MAJOR_TYPE_STRING); // string
         uint length = v & 31;
         console.log(length);
+        */
 
 
         
