@@ -144,7 +144,8 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeVCMap(bytes memory buffer, uint pos) private view returns (uint) {
+    /*
+    function decodeVCMap(bytes memory buffer, uint pos, string memory needle) private view returns (uint) {
         uint v = uint8(buffer[pos]);
         pos++;
         uint cbor_type = v >> 5;
@@ -169,7 +170,7 @@ contract NZCP is EllipticCurve {
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
                 console.log("(vc) got to string!!", key);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("credentialSubject"))) {
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(needle))) {
                     console.log("(vc) about to parse credentialSubject");
                 }
                 else {
@@ -183,8 +184,9 @@ contract NZCP is EllipticCurve {
             }
         }
     }
+    */
 
-    function decodeClaimsMap(bytes memory buffer, uint pos) private view returns (uint) {
+    function decodeClaimsMap(bytes memory buffer, uint pos, string[] memory needles, uint needle_pos) private view returns (uint) {
         uint v = uint8(buffer[pos]);
         pos++;
         uint cbor_type = v >> 5;
@@ -209,11 +211,20 @@ contract NZCP is EllipticCurve {
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
                 console.log("got to string!!", key);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("vc"))) {
-                    pos = decodeVCMap(buffer, pos);
-                    console.log("about to parse verified credential");
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(needles[needle_pos]))) {
+                    if (needle_pos + 1 >= needles.length) {
+                        console.log("found all needles");
+                        return pos;
+                    }
+                    else {
+                        console.log("about to parse:", needles[needle_pos]);
+                        return decodeClaimsMap(buffer, pos, needles, needle_pos + 1);
+                    }
                 }
-                return pos;
+                else {
+                    console.log("skipping string key", key);
+                    pos = skipCBORValue(buffer, pos); // skip value
+                }
             }
             else {
                 require(false, "map key is of an supported type");
@@ -250,7 +261,11 @@ contract NZCP is EllipticCurve {
         memcpy(claimsptr, bufferptr, buffer.length);
 
 
-        decodeClaimsMap(claims, 0);
+        string[] memory needles = new string[](3);
+        needles[0] = "vc";
+        needles[1] = "credentialSubject";
+        needles[2] = "givenName";
+        decodeClaimsMap(claims, 0, needles, 0);
         return true;
     }
 }
