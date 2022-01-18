@@ -117,8 +117,70 @@ contract NZCP is EllipticCurve {
             pos += len;
             return pos;
         }
+        else if (cbor_type == MAJOR_TYPE_ARRAY) {
+            console.log("skipping MAJOR_TYPE_ARRAY");
+            uint len;
+            (pos, len) = decodeCBORUint(buffer, pos, v);
+            console.log("array len", len);
+            for (uint i = 0; i < len; i++) {
+                pos = skipCBORValue(buffer, pos);
+            }
+            return pos;
+        }
+        else if (cbor_type == MAJOR_TYPE_MAP) {
+            // TODO: not tested
+            console.log("skipping MAJOR_TYPE_MAP");
+            uint len;
+            (pos, len) = decodeCBORUint(buffer, pos, v);
+            console.log("map len", len);
+            for (uint i = 0; i < len; i++) {
+                pos = skipCBORValue(buffer, pos);
+                pos = skipCBORValue(buffer, pos);
+            }
+            return pos;
+        }
         else {
             require(false, "this cbor_type is not supported");
+        }
+    }
+
+    function decodeVCMap(bytes memory buffer, uint pos) private view returns (uint) {
+        uint v = uint8(buffer[pos]);
+        pos++;
+        uint cbor_type = v >> 5;
+        require(cbor_type == MAJOR_TYPE_MAP);
+        uint map_len;
+        (pos, map_len) = decodeCBORUint(buffer, pos, v);
+
+        for (uint256 i = 0; i < map_len; i++) {
+            uint v2 = uint8(buffer[pos]);
+            pos++;
+            uint cbor_type2 = v2 >> 5;
+            if (cbor_type2 == MAJOR_TYPE_INT) {
+                uint int_key;
+                (pos, int_key) = decodeCBORUint(buffer, pos, v2);
+                console.log("(vc) got int key!!", int_key);
+                pos = skipCBORValue(buffer, pos); // skip value
+            }
+            else if (cbor_type2 == MAJOR_TYPE_STRING) {
+                uint len;
+                (pos, len) = decodeCBORUint(buffer, pos, v2);
+
+                string memory key;
+                (pos, key) = decodeString(buffer, pos, len);
+                console.log("(vc) got to string!!", key);
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("credentialSubject"))) {
+                    console.log("(vc) about to parse credentialSubject");
+                }
+                else {
+                    console.log("(vc) skipping string key", key);
+                    pos = skipCBORValue(buffer, pos); // skip value
+                }
+                // return pos;
+            }
+            else {
+                require(false, "map key is of an supported type");
+            }
         }
     }
 
@@ -148,6 +210,7 @@ contract NZCP is EllipticCurve {
                 (pos, key) = decodeString(buffer, pos, len);
                 console.log("got to string!!", key);
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("vc"))) {
+                    pos = decodeVCMap(buffer, pos);
                     console.log("about to parse verified credential");
                 }
                 return pos;
