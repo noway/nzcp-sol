@@ -144,6 +144,17 @@ contract NZCP is EllipticCurve {
         }
     }
 
+    function readStringValue(bytes memory buffer, uint pos) private view returns (uint, string memory) {
+        uint v3 = uint8(buffer[pos]);
+        pos++;
+        uint cbor_type3 = v3 >> 5; // TODO: check that it's string
+        uint value_len;
+        (pos, value_len) = decodeCBORUint(buffer, pos, v3);
+
+
+        return decodeString(buffer, pos, value_len);
+    }
+
     function searchCBORTree(bytes memory buffer, uint pos, string[] memory needles, uint needle_pos) private view returns (uint) {
         uint v = uint8(buffer[pos]);
         pos++;
@@ -190,6 +201,54 @@ contract NZCP is EllipticCurve {
         }
     }
 
+    function decodeCredentialSubject(bytes memory buffer, uint pos) public view returns (string memory, string memory, string memory) {
+        uint v = uint8(buffer[pos]);
+        pos++;
+        uint cbor_type = v >> 5;
+        require(cbor_type == MAJOR_TYPE_MAP);
+        uint map_len;
+        (pos, map_len) = decodeCBORUint(buffer, pos, v);
+
+        string memory givenName;
+        string memory familyName;
+        string memory dob;
+
+        for (uint256 i = 0; i < map_len; i++) {
+            uint v2 = uint8(buffer[pos]);
+            pos++;
+            uint cbor_type2 = v2 >> 5;
+            if (cbor_type2 == MAJOR_TYPE_STRING) {
+                uint len;
+                (pos, len) = decodeCBORUint(buffer, pos, v2);
+
+                string memory key;
+                (pos, key) = decodeString(buffer, pos, len);
+                console.log("got to string!!", key);
+                // (pos, key) = readStringValue(buffer, pos);
+
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
+                    console.log("found givenName");
+                    (pos, givenName) = readStringValue(buffer, pos);
+                }
+                else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("familyName"))) {
+                    console.log("found familyName");
+                    (pos, familyName) = readStringValue(buffer, pos);
+                }
+                else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("dob"))) {
+                    console.log("found dob");                    
+                    (pos, dob) = readStringValue(buffer, pos);
+                }
+                else {
+                    console.log("skipping string key", key);
+                    pos = skipCBORValue(buffer, pos); // skip value
+                }
+            }
+            else {
+                require(false, "map key is of an supported type");
+            }
+        }
+        return (givenName, familyName, dob);
+    }
 
 
     function verifySignature(bytes32 messageHash, uint[2] memory rs, bool is_example) public pure returns (bool) {
@@ -225,10 +284,10 @@ contract NZCP is EllipticCurve {
         needles[1] = "credentialSubject";
         uint credentialSubjectPos = searchCBORTree(claims, 0, needles, 0);
 
-        // string memory givenName;
-        // string memory familyName;
-        // string memory dob;
-        // (givenName, familyName, dob) = decodeCredentialSubject(claims, credentialSubjectPos);
+        string memory givenName;
+        string memory familyName;
+        string memory dob;
+        (givenName, familyName, dob) = decodeCredentialSubject(claims, credentialSubjectPos);
 
 
         return true;
