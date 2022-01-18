@@ -144,49 +144,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    /*
-    function decodeVCMap(bytes memory buffer, uint pos, string memory needle) private view returns (uint) {
-        uint v = uint8(buffer[pos]);
-        pos++;
-        uint cbor_type = v >> 5;
-        require(cbor_type == MAJOR_TYPE_MAP);
-        uint map_len;
-        (pos, map_len) = decodeCBORUint(buffer, pos, v);
-
-        for (uint256 i = 0; i < map_len; i++) {
-            uint v2 = uint8(buffer[pos]);
-            pos++;
-            uint cbor_type2 = v2 >> 5;
-            if (cbor_type2 == MAJOR_TYPE_INT) {
-                uint int_key;
-                (pos, int_key) = decodeCBORUint(buffer, pos, v2);
-                console.log("(vc) got int key!!", int_key);
-                pos = skipCBORValue(buffer, pos); // skip value
-            }
-            else if (cbor_type2 == MAJOR_TYPE_STRING) {
-                uint len;
-                (pos, len) = decodeCBORUint(buffer, pos, v2);
-
-                string memory key;
-                (pos, key) = decodeString(buffer, pos, len);
-                console.log("(vc) got to string!!", key);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(needle))) {
-                    console.log("(vc) about to parse credentialSubject");
-                }
-                else {
-                    console.log("(vc) skipping string key", key);
-                    pos = skipCBORValue(buffer, pos); // skip value
-                }
-                // return pos;
-            }
-            else {
-                require(false, "map key is of an supported type");
-            }
-        }
-    }
-    */
-
-    function decodeClaimsMap(bytes memory buffer, uint pos, string[] memory needles, uint needle_pos) private view returns (uint) {
+    function searchCBORTree(bytes memory buffer, uint pos, string[] memory needles, uint needle_pos) private view returns (uint) {
         uint v = uint8(buffer[pos]);
         pos++;
         uint cbor_type = v >> 5;
@@ -218,7 +176,7 @@ contract NZCP is EllipticCurve {
                     }
                     else {
                         console.log("about to parse:", needles[needle_pos]);
-                        return decodeClaimsMap(buffer, pos, needles, needle_pos + 1);
+                        return searchCBORTree(buffer, pos, needles, needle_pos + 1);
                     }
                 }
                 else {
@@ -231,6 +189,7 @@ contract NZCP is EllipticCurve {
             }
         }
     }
+
 
 
     function verifySignature(bytes32 messageHash, uint[2] memory rs, bool is_example) public pure returns (bool) {
@@ -261,11 +220,17 @@ contract NZCP is EllipticCurve {
         memcpy(claimsptr, bufferptr, buffer.length);
 
 
-        string[] memory needles = new string[](3);
+        string[] memory needles = new string[](2);
         needles[0] = "vc";
         needles[1] = "credentialSubject";
-        needles[2] = "givenName";
-        decodeClaimsMap(claims, 0, needles, 0);
+        uint credentialSubjectPos = searchCBORTree(claims, 0, needles, 0);
+
+        // string memory givenName;
+        // string memory familyName;
+        // string memory dob;
+        // (givenName, familyName, dob) = decodeCredentialSubject(claims, credentialSubjectPos);
+
+
         return true;
     }
 }
