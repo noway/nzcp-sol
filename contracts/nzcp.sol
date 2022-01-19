@@ -9,6 +9,8 @@ import "./EllipticCurve.sol";
 // - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSignedBuffer.
 contract NZCP is EllipticCurve {
 
+    // CBOR types
+    // TODO: make a macro
     uint private constant MAJOR_TYPE_INT = 0;
     uint private constant MAJOR_TYPE_NEGATIVE_INT = 1;
     uint private constant MAJOR_TYPE_BYTES = 2;
