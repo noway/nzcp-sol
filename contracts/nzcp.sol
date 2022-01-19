@@ -168,7 +168,7 @@ contract NZCP is EllipticCurve {
         uint v;
         uint cbor_type;
         (pos, cbor_type, v) = readType(buffer, pos);
-        require(cbor_type == MAJOR_TYPE_MAP);
+        require(cbor_type == MAJOR_TYPE_MAP, "cbor_type expected to be map");
         uint map_len;
         (pos, map_len) = decodeCBORUint(buffer, pos, v);
         return (pos, map_len);
