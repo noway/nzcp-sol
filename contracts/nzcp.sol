@@ -187,7 +187,7 @@ contract NZCP is EllipticCurve {
         uint maplen;
         (pos, maplen) = readMapLength(buffer, pos);
 
-        for (uint256 i = 0; i < maplen; i++) {
+        for (uint i = 0; i < maplen; i++) {
             uint v;
             uint cbortype;
             (pos, cbortype, v) = readType(buffer, pos);
@@ -243,7 +243,7 @@ contract NZCP is EllipticCurve {
         string memory familyName;
         string memory dob;
 
-        for (uint256 i = 0; i < maplen; i++) {
+        for (uint i = 0; i < maplen; i++) {
             uint v;
             uint cbortype;
             (pos, cbortype, v) = readType(buffer, pos);
