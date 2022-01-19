@@ -106,7 +106,7 @@ describe("NZCP", function () {
     const r = "0xD2E07B1DD7263D833166BDBB4F1A093837A905D7ECA2EE836B6B2ADA23C23154";
     const s = "0xFBA88A529F675D6686EE632B09EC581AB08F72B458904BB3396D10FA66D11477";
 
-    const result = await nzcp.parseToBeSignedBuffer(toBeSignedBuffer, [r, s], 1)
+    const result = await nzcp.parseAndVerifyToBeSignedBuffer(toBeSignedBuffer, [r, s], 1)
     expect(result).to.equal(true);
 
   });

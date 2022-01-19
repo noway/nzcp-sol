@@ -23,7 +23,6 @@ contract NZCP is EllipticCurve {
     uint public constant LIVE_X = 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7;
     uint public constant LIVE_Y = 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662;
 
-
     string[] private needles = ["vc", "credentialSubject"];
 
     function memcpy(uint dest, uint src, uint len) private pure {
@@ -176,7 +175,9 @@ contract NZCP is EllipticCurve {
         return (pos, map_len);
     }
 
-    function searchCBORTree(bytes memory buffer, uint pos, uint needle_pos) private view returns (uint) {
+    // Recursively finds the position of credential subject in the CWT claims
+    // Side effects: reverts transaction if pass is expired.
+    function findCredentialSubject(bytes memory buffer, uint pos, uint needle_pos) private view returns (uint) {
         uint map_len;
         (pos, map_len) = readMapLength(buffer, pos);
 
@@ -219,7 +220,7 @@ contract NZCP is EllipticCurve {
                     }
                     else {
                         // console.log("about to parse:", needles[needle_pos]);
-                        return searchCBORTree(buffer, pos, needle_pos + 1);
+                        return findCredentialSubject(buffer, pos, needle_pos + 1);
                     }
                 }
                 else {
@@ -233,7 +234,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeCredentialSubject(bytes memory buffer, uint pos) public view returns (string memory, string memory, string memory) {
+    function readCredentialSubject(bytes memory buffer, uint pos) public view returns (string memory, string memory, string memory) {
         uint map_len;
         (pos, map_len) = readMapLength(buffer, pos);
 
@@ -291,21 +292,20 @@ contract NZCP is EllipticCurve {
         return verifySignature(sha256(buffer), rs, is_example);
     }
 
-    function parseToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view returns (bool) {
+    function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view returns (bool) {
 
         uint skip = 27; // 27 bytes for ["Signature1", headers, buffer0] // TODO: macro
 
-        uint credentialSubjectPos = searchCBORTree(buffer, skip, 0);
+        uint credentialSubjectPos = findCredentialSubject(buffer, skip, 0);
 
         string memory givenName;
         string memory familyName;
         string memory dob;
-        (givenName, familyName, dob) = decodeCredentialSubject(buffer, credentialSubjectPos);
+        (givenName, familyName, dob) = readCredentialSubject(buffer, credentialSubjectPos);
 
         console.log("givenName:", givenName);
         console.log("familyName:", familyName);
         console.log("dob:", dob);
-
 
         return verifyToBeSignedBuffer(buffer, rs, is_example);
     }
