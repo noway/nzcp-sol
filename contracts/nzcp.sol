@@ -293,6 +293,6 @@ contract NZCP is EllipticCurve {
         console.log("dob:", dob);
 
 
-        return true;
+        return verifyToBeSignedBuffer(buffer, rs, is_example);
     }
 }
