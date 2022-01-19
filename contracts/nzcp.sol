@@ -226,7 +226,6 @@ contract NZCP is EllipticCurve {
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
                 console.log("got to string!!", key);
-                // (pos, key) = readStringValue(buffer, pos);
 
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
                     console.log("found givenName");
