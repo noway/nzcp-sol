@@ -275,27 +275,17 @@ contract NZCP is EllipticCurve {
 
     function parseToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view returns (bool) {
 
-        bytes memory claims = new bytes(buffer.length);
-        uint claimsptr;
-        assembly { claimsptr := add(claims, 32) }
-
-        uint bufferptr;
-        uint skip = 32 + 27; // buffer start + 27 bytes for ["Signature1", headers, buffer0]
-        assembly { bufferptr := add(buffer, skip) }
-        
-
-        memcpy(claimsptr, bufferptr, buffer.length);
-
+        uint skip = 27; // 27 bytes for ["Signature1", headers, buffer0] // TODO: macro
 
         string[] memory needles = new string[](2);
         needles[0] = "vc";
         needles[1] = "credentialSubject";
-        uint credentialSubjectPos = searchCBORTree(claims, 0, needles, 0);
+        uint credentialSubjectPos = searchCBORTree(buffer, skip, needles, 0);
 
         string memory givenName;
         string memory familyName;
         string memory dob;
-        (givenName, familyName, dob) = decodeCredentialSubject(claims, credentialSubjectPos);
+        (givenName, familyName, dob) = decodeCredentialSubject(buffer, credentialSubjectPos);
 
         console.log("givenName:", givenName);
         console.log("familyName:", familyName);
