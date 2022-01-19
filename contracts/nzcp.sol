@@ -155,13 +155,19 @@ contract NZCP is EllipticCurve {
         return decodeString(buffer, pos, value_len);
     }
 
-    function searchCBORTree(bytes memory buffer, uint pos, string[] memory needles, uint needle_pos) private view returns (uint) {
+    function readMapLength(bytes memory buffer, uint pos) private view returns (uint, uint) {
         uint v = uint8(buffer[pos]);
         pos++;
         uint cbor_type = v >> 5;
         require(cbor_type == MAJOR_TYPE_MAP);
         uint map_len;
         (pos, map_len) = decodeCBORUint(buffer, pos, v);
+        return (pos, map_len);
+    }
+
+    function searchCBORTree(bytes memory buffer, uint pos, string[] memory needles, uint needle_pos) private view returns (uint) {
+        uint map_len;
+        (pos, map_len) = readMapLength(buffer, pos);
 
         for (uint256 i = 0; i < map_len; i++) {
             uint v2 = uint8(buffer[pos]);
@@ -202,12 +208,8 @@ contract NZCP is EllipticCurve {
     }
 
     function decodeCredentialSubject(bytes memory buffer, uint pos) public view returns (string memory, string memory, string memory) {
-        uint v = uint8(buffer[pos]);
-        pos++;
-        uint cbor_type = v >> 5;
-        require(cbor_type == MAJOR_TYPE_MAP);
         uint map_len;
-        (pos, map_len) = decodeCBORUint(buffer, pos, v);
+        (pos, map_len) = readMapLength(buffer, pos);
 
         string memory givenName;
         string memory familyName;
