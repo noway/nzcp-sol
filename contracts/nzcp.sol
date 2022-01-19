@@ -143,10 +143,18 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function readStringValue(bytes memory buffer, uint pos) private view returns (uint, string memory) {
+    // TODO: a macro
+    function readType(bytes memory buffer, uint pos) private pure returns (uint, uint, uint) {
         uint v = uint8(buffer[pos]);
         pos++;
         uint cbor_type = v >> 5;
+        return (pos, cbor_type, v);
+    }
+
+    function readStringValue(bytes memory buffer, uint pos) private view returns (uint, string memory) {
+        uint v;
+        uint cbor_type;
+        (pos, cbor_type, v) = readType(buffer, pos);
         require(cbor_type == MAJOR_TYPE_STRING, "cbor_type expected to be string");
         uint value_len;
         (pos, value_len) = decodeCBORUint(buffer, pos, v);
@@ -154,9 +162,9 @@ contract NZCP is EllipticCurve {
     }
 
     function readMapLength(bytes memory buffer, uint pos) private view returns (uint, uint) {
-        uint v = uint8(buffer[pos]);
-        pos++;
-        uint cbor_type = v >> 5;
+        uint v;
+        uint cbor_type;
+        (pos, cbor_type, v) = readType(buffer, pos);
         require(cbor_type == MAJOR_TYPE_MAP);
         uint map_len;
         (pos, map_len) = decodeCBORUint(buffer, pos, v);
@@ -168,18 +176,19 @@ contract NZCP is EllipticCurve {
         (pos, map_len) = readMapLength(buffer, pos);
 
         for (uint256 i = 0; i < map_len; i++) {
-            uint v2 = uint8(buffer[pos]);
-            pos++;
-            uint cbor_type2 = v2 >> 5;
-            if (cbor_type2 == MAJOR_TYPE_INT) {
+            uint v;
+            uint cbor_type;
+            (pos, cbor_type, v) = readType(buffer, pos);
+
+            if (cbor_type == MAJOR_TYPE_INT) {
                 uint int_key;
-                (pos, int_key) = decodeCBORUint(buffer, pos, v2);
+                (pos, int_key) = decodeCBORUint(buffer, pos, v);
                 // console.log("got int key!!", int_key);
                 pos = skipCBORValue(buffer, pos); // skip value
             }
-            else if (cbor_type2 == MAJOR_TYPE_STRING) {
+            else if (cbor_type == MAJOR_TYPE_STRING) {
                 uint len;
-                (pos, len) = decodeCBORUint(buffer, pos, v2);
+                (pos, len) = decodeCBORUint(buffer, pos, v);
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
@@ -214,12 +223,12 @@ contract NZCP is EllipticCurve {
         string memory dob;
 
         for (uint256 i = 0; i < map_len; i++) {
-            uint v2 = uint8(buffer[pos]);
-            pos++;
-            uint cbor_type2 = v2 >> 5;
-            if (cbor_type2 == MAJOR_TYPE_STRING) {
+            uint v;
+            uint cbor_type;
+            (pos, cbor_type, v) = readType(buffer, pos);
+            if (cbor_type == MAJOR_TYPE_STRING) {
                 uint len;
-                (pos, len) = decodeCBORUint(buffer, pos, v2);
+                (pos, len) = decodeCBORUint(buffer, pos, v);
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
