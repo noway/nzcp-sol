@@ -24,8 +24,8 @@ const EXAMPLE_Y = "0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A
 const LIVE_X = "0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7";
 const LIVE_Y = "0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662";
 
-describe("NZCP", function () {
-  it("Should verify signature with EC", async function () {
+describe("EC", function () {
+  it("Should verify signature", async function () {
 
     const ec = await setupEC()
     // Create contract.
@@ -72,9 +72,10 @@ describe("NZCP", function () {
     expect(await ec.validateSignature(messageHash, [r, s], [EXAMPLE_X, EXAMPLE_Y])).to.equal(true);
   })
 
+})
 
-
-  it("Should verify signature with NZCP example pubkey via nzcp", async function () {
+describe("NZCP", function () {
+  it("Should verify signature with NZCP example pubkey", async function () {
     const nzcp = await setupNZCP()
     // Jack Sparrow example pass
     const messageHash = "0x271CE33D671A2D3B816D788135F4343E14BC66802F8CD841FAAC939E8C11F3EE";
