@@ -86,7 +86,7 @@ describe("NZCP", function () {
   })
 
 
-  it("Should verify signature with to be signed buffer", async function () {
+  it("Should verify signature with ToBeSignedBuffer", async function () {
 
     const nzcp = await setupNZCP()
     // Jack Sparrow example pass
@@ -98,7 +98,7 @@ describe("NZCP", function () {
 
   });
 
-  it("Should parse to be signed buffer", async function () {
+  it("Should parse credential subject in ToBeSignedBuffer", async function () {
 
     const nzcp = await setupNZCP()
     // Jack Sparrow example pass

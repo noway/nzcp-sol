@@ -6,10 +6,10 @@ import "./EllipticCurve.sol";
 // TODO: make all uints uint8
 
 // NZCP implementation in Solidity
-// Verifies NZCP pass and returns credential subject
-// Reverts transaction if pass is invalid
+// - Verifies NZCP pass and returns credential subject.
+// - Reverts transaction if pass is invalid.
+// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSignedBuffer.
 contract NZCP is EllipticCurve {
-    string private greeting;
 
     uint8 private constant MAJOR_TYPE_INT = 0;
     uint8 private constant MAJOR_TYPE_NEGATIVE_INT = 1;
@@ -20,9 +20,15 @@ contract NZCP is EllipticCurve {
     uint8 private constant MAJOR_TYPE_TAG = 6;
     uint8 private constant MAJOR_TYPE_CONTENT_FREE = 7;
 
+    // "key-1" public key published here:
+    // https://nzcp.covid19.health.nz/.well-known/did.json
+    // Doesn't suppose to change unless MoH leaks their private key
     uint public constant EXAMPLE_X = 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD;
     uint public constant EXAMPLE_Y = 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D;
 
+    // "z12Kf7UQ" public key published here:
+    // https://nzcp.identity.health.nz/.well-known/did.json
+    // Doesn't suppose to change unless MoH leaks their private key
     uint public constant LIVE_X = 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7;
     uint public constant LIVE_Y = 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662;
 
@@ -84,8 +90,10 @@ contract NZCP is EllipticCurve {
         string memory str = new string(len);
 
         uint strptr;
+        // 32 is the length of the string header
         assembly { strptr := add(str, 32) }
         
+        // 32 is the length of the string header
         uint skip = 32 + pos;
         uint bufferptr;
         assembly { bufferptr := add(buffer, skip) }
@@ -97,34 +105,34 @@ contract NZCP is EllipticCurve {
 
     function skipCBORValue(bytes memory buffer, uint pos) private view returns (uint) {
         uint v;
-        uint cbor_type;
-        (pos, cbor_type, v) = readType(buffer, pos);
+        uint cbortype;
+        (pos, cbortype, v) = readType(buffer, pos);
         // TODO: remove unused branches
 
-        if (cbor_type == MAJOR_TYPE_INT) {
+        if (cbortype == MAJOR_TYPE_INT) {
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
             return pos;
         }
-        else if (cbor_type == MAJOR_TYPE_NEGATIVE_INT) {
+        else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
             value = ~value; // TODO: not neccessary
             return pos;
         }
-        else if (cbor_type == MAJOR_TYPE_BYTES) {
+        else if (cbortype == MAJOR_TYPE_BYTES) {
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
             pos += len;
             return pos;
         }
-        else if (cbor_type == MAJOR_TYPE_STRING) {
+        else if (cbortype == MAJOR_TYPE_STRING) {
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
             pos += len;
             return pos;
         }
-        else if (cbor_type == MAJOR_TYPE_ARRAY) {
+        else if (cbortype == MAJOR_TYPE_ARRAY) {
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
             for (uint i = 0; i < len; i++) {
@@ -132,7 +140,7 @@ contract NZCP is EllipticCurve {
             }
             return pos;
         }
-        else if (cbor_type == MAJOR_TYPE_MAP) {
+        else if (cbortype == MAJOR_TYPE_MAP) {
             // TODO: not tested
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
@@ -143,23 +151,23 @@ contract NZCP is EllipticCurve {
             return pos;
         }
         else {
-            require(false, "this cbor_type is not supported");
+            require(false, "this cbortype is not supported");
         }
     }
 
-    // TODO: a macro
+    // TODO: make a macro
     function readType(bytes memory buffer, uint pos) private pure returns (uint, uint, uint) {
         uint v = uint8(buffer[pos]);
         pos++;
-        uint cbor_type = v >> 5;
-        return (pos, cbor_type, v);
+        uint cbortype = v >> 5;
+        return (pos, cbortype, v);
     }
 
     function readStringValue(bytes memory buffer, uint pos) private pure returns (uint, string memory) {
         uint v;
-        uint cbor_type;
-        (pos, cbor_type, v) = readType(buffer, pos);
-        require(cbor_type == MAJOR_TYPE_STRING, "cbor_type expected to be string");
+        uint cbortype;
+        (pos, cbortype, v) = readType(buffer, pos);
+        require(cbortype == MAJOR_TYPE_STRING, "cbortype expected to be string");
         uint value_len;
         (pos, value_len) = decodeCBORUint(buffer, pos, v);
         return decodeString(buffer, pos, value_len);
@@ -167,33 +175,33 @@ contract NZCP is EllipticCurve {
 
     function readMapLength(bytes memory buffer, uint pos) private pure returns (uint, uint) {
         uint v;
-        uint cbor_type;
-        (pos, cbor_type, v) = readType(buffer, pos);
-        require(cbor_type == MAJOR_TYPE_MAP, "cbor_type expected to be map");
-        uint map_len;
-        (pos, map_len) = decodeCBORUint(buffer, pos, v);
-        return (pos, map_len);
+        uint cbortype;
+        (pos, cbortype, v) = readType(buffer, pos);
+        require(cbortype == MAJOR_TYPE_MAP, "cbortype expected to be map");
+        uint maplen;
+        (pos, maplen) = decodeCBORUint(buffer, pos, v);
+        return (pos, maplen);
     }
 
-    // Recursively finds the position of credential subject in the CWT claims
+    // Recursively searches the position of credential subject in the CWT claims
     // Side effects: reverts transaction if pass is expired.
     function findCredentialSubject(bytes memory buffer, uint pos, uint needle_pos) private view returns (uint) {
-        uint map_len;
-        (pos, map_len) = readMapLength(buffer, pos);
+        uint maplen;
+        (pos, maplen) = readMapLength(buffer, pos);
 
-        for (uint256 i = 0; i < map_len; i++) {
+        for (uint256 i = 0; i < maplen; i++) {
             uint v;
-            uint cbor_type;
-            (pos, cbor_type, v) = readType(buffer, pos);
+            uint cbortype;
+            (pos, cbortype, v) = readType(buffer, pos);
 
-            if (cbor_type == MAJOR_TYPE_INT) {
-                uint int_key;
-                (pos, int_key) = decodeCBORUint(buffer, pos, v);
-                if (int_key == 4) {
+            if (cbortype == MAJOR_TYPE_INT) {
+                uint key;
+                (pos, key) = decodeCBORUint(buffer, pos, v);
+                if (key == 4) {
                     uint v2;
                     uint cbor_type2;
                     (pos, cbor_type2, v2) = readType(buffer, pos);
-                    require(cbor_type2 == MAJOR_TYPE_INT, "cbor_type expected to be integer");
+                    require(cbor_type2 == MAJOR_TYPE_INT, "cbortype expected to be integer");
 
                     uint256 exp;
                     (pos, exp) = decodeCBORUint(buffer, pos, v2);
@@ -205,12 +213,12 @@ contract NZCP is EllipticCurve {
                     pos = skipCBORValue(buffer, pos); // skip value
                 }
             }
-            else if (cbor_type == MAJOR_TYPE_STRING) {
-                uint len;
-                (pos, len) = decodeCBORUint(buffer, pos, v);
+            else if (cbortype == MAJOR_TYPE_STRING) {
+                uint strlen;
+                (pos, strlen) = decodeCBORUint(buffer, pos, v);
 
                 string memory key;
-                (pos, key) = decodeString(buffer, pos, len);
+                (pos, key) = decodeString(buffer, pos, strlen);
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(credential_subject_path[needle_pos]))) {
                     if (needle_pos + 1 >= credential_subject_path.length) { // TODO: macro
                         return pos;
@@ -229,24 +237,24 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function readCredentialSubject(bytes memory buffer, uint pos) public view returns (string memory, string memory, string memory) {
-        uint map_len;
-        (pos, map_len) = readMapLength(buffer, pos);
+    function readCredentialSubject(bytes memory buffer, uint pos) private view returns (string memory, string memory, string memory) {
+        uint maplen;
+        (pos, maplen) = readMapLength(buffer, pos);
 
         string memory givenName;
         string memory familyName;
         string memory dob;
 
-        for (uint256 i = 0; i < map_len; i++) {
+        for (uint256 i = 0; i < maplen; i++) {
             uint v;
-            uint cbor_type;
-            (pos, cbor_type, v) = readType(buffer, pos);
-            if (cbor_type == MAJOR_TYPE_STRING) {
-                uint len;
-                (pos, len) = decodeCBORUint(buffer, pos, v);
+            uint cbortype;
+            (pos, cbortype, v) = readType(buffer, pos);
+            if (cbortype == MAJOR_TYPE_STRING) {
+                uint strlen;
+                (pos, strlen) = decodeCBORUint(buffer, pos, v);
 
                 string memory key;
-                (pos, key) = decodeString(buffer, pos, len);
+                (pos, key) = decodeString(buffer, pos, strlen);
 
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
                     (pos, givenName) = readStringValue(buffer, pos);
