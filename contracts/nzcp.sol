@@ -40,7 +40,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeCBORUint(bytes memory buffer, uint pos, uint v) private view returns (uint, uint) {
+    function decodeCBORUint(bytes memory buffer, uint pos, uint v) private pure returns (uint, uint) {
         uint x = v & 31;
         if (x <= 23) {
             return (pos, x);
@@ -68,7 +68,7 @@ contract NZCP is EllipticCurve {
             require(false, "x is not in supported range");
         }
     }
-    function decodeString(bytes memory buffer, uint pos, uint len) private view returns (uint, string memory) {
+    function decodeString(bytes memory buffer, uint pos, uint len) private pure returns (uint, string memory) {
         string memory str = new string(len);
 
         uint strptr;
@@ -151,7 +151,7 @@ contract NZCP is EllipticCurve {
         return (pos, cbor_type, v);
     }
 
-    function readStringValue(bytes memory buffer, uint pos) private view returns (uint, string memory) {
+    function readStringValue(bytes memory buffer, uint pos) private pure returns (uint, string memory) {
         uint v;
         uint cbor_type;
         (pos, cbor_type, v) = readType(buffer, pos);
@@ -161,7 +161,7 @@ contract NZCP is EllipticCurve {
         return decodeString(buffer, pos, value_len);
     }
 
-    function readMapLength(bytes memory buffer, uint pos) private view returns (uint, uint) {
+    function readMapLength(bytes memory buffer, uint pos) private pure returns (uint, uint) {
         uint v;
         uint cbor_type;
         (pos, cbor_type, v) = readType(buffer, pos);
