@@ -3,6 +3,8 @@ pragma solidity ^0.8.11;
 import "hardhat/console.sol";
 import "./EllipticCurve.sol";
 
+// TODO: make all uints uint8
+
 contract NZCP is EllipticCurve {
     string private greeting;
 
@@ -49,20 +51,20 @@ contract NZCP is EllipticCurve {
             return (pos, x);
         }
         else if (x == 24) {
-            uint value = uint8(buffer[pos]);
+            uint8 value = uint8(buffer[pos]);
             pos++;
             return (pos, value);
         }
         // TODO: handle 25
         else if (x == 26) { // 32-bit
             uint32 value;
-            value = uint8(buffer[pos]) << 24;
+            value = uint32(uint8(buffer[pos])) << 24;
             pos++;
-            value |= uint8(buffer[pos]) << 16;
+            value |= uint32(uint8(buffer[pos])) << 16;
             pos++;
-            value |= uint8(buffer[pos]) << 8;
+            value |= uint32(uint8(buffer[pos])) << 8;
             pos++;
-            value |= uint8(buffer[pos]);
+            value |= uint32(uint8(buffer[pos]));
             pos++;
             return (pos, value);
         }
@@ -101,7 +103,7 @@ contract NZCP is EllipticCurve {
             // console.log("skipping MAJOR_TYPE_NEGATIVE_INT");
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
-            value = ~value;
+            value = ~value; // TODO: not neccessary
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_BYTES) {
@@ -187,7 +189,21 @@ contract NZCP is EllipticCurve {
                 uint int_key;
                 (pos, int_key) = decodeCBORUint(buffer, pos, v);
                 // console.log("got int key!!", int_key);
-                pos = skipCBORValue(buffer, pos); // skip value
+                if (int_key == 4) {
+                    uint v2;
+                    uint cbor_type2;
+                    (pos, cbor_type2, v2) = readType(buffer, pos);
+                    require(cbor_type2 == MAJOR_TYPE_INT, "cbor_type expected to be integer");
+
+                    uint256 exp;
+                    (pos, exp) = decodeCBORUint(buffer, pos, v2);
+                    // pos = skipCBORValue(buffer, pos); // skip value
+                    // console.log(v2);
+                    console.log(exp);
+                }
+                else {
+                    pos = skipCBORValue(buffer, pos); // skip value
+                }
             }
             else if (cbor_type == MAJOR_TYPE_STRING) {
                 uint len;
