@@ -102,9 +102,7 @@ describe("EC", function () {
       '0x' + sigString.slice(xlength + 4)
     ];
 
-
     expect(await ec.validateSignature(messageHash, signature, publicKey)).to.equal(true);
-
   })
 
   it("Should verify signature with NZCP example pubkey", async function () {
@@ -128,28 +126,32 @@ describe("NZCP", function () {
 
   })
 
-
   it("Should verify signature with ToBeSignedBuffer", async function () {
     const nzcp = await setupNZCP()
-    expect(await nzcp.verifyToBeSignedBuffer(EXAMPLE_PASS.ToBeSignedBuffer, [EXAMPLE_PASS.r, EXAMPLE_PASS.s], 1)).to.equal(true);
+    expect(await nzcp.verifyToBeSignedBuffer(
+      EXAMPLE_PASS.ToBeSignedBuffer, [EXAMPLE_PASS.r, EXAMPLE_PASS.s], 1)).to.equal(true);
   });
 
   it("Should parse credential subject in ToBeSignedBuffer", async function () {
     const nzcp = await setupNZCP()
-    const result = await nzcp.parseAndVerifyToBeSignedBuffer(EXAMPLE_PASS.ToBeSignedBuffer, [EXAMPLE_PASS.r, EXAMPLE_PASS.s], 1)
+    const result = await nzcp.parseAndVerifyToBeSignedBuffer(
+      EXAMPLE_PASS.ToBeSignedBuffer, [EXAMPLE_PASS.r, EXAMPLE_PASS.s], 1)
     const JackSparrow = ["Jack", "Sparrow", "1960-04-16"];
     expect(result).to.deep.equal(JackSparrow);
   });
 
-
   it("Should fail BAD_PUBLIC_KEY_PASS", async function () {
     const nzcp = await setupNZCP();
-    expect(nzcp.parseAndVerifyToBeSignedBuffer(BAD_PUBLIC_KEY_PASS.ToBeSignedBuffer, [BAD_PUBLIC_KEY_PASS.r, BAD_PUBLIC_KEY_PASS.s], 1)).to.be.revertedWith("Invalid signature");
+    expect(
+      nzcp.parseAndVerifyToBeSignedBuffer(
+        BAD_PUBLIC_KEY_PASS.ToBeSignedBuffer, [BAD_PUBLIC_KEY_PASS.r, BAD_PUBLIC_KEY_PASS.s], 1)
+    ).to.be.revertedWith("Invalid signature");
   });
 
   it("Should parse PUBLIC_KEY_NOT_FOUND_PASS while violating spec", async function () {
     const nzcp = await setupNZCP();
-    const result = await nzcp.parseAndVerifyToBeSignedBuffer(PUBLIC_KEY_NOT_FOUND_PASS.ToBeSignedBuffer, [PUBLIC_KEY_NOT_FOUND_PASS.r, PUBLIC_KEY_NOT_FOUND_PASS.s], 1);
+    const result = await nzcp.parseAndVerifyToBeSignedBuffer(
+      PUBLIC_KEY_NOT_FOUND_PASS.ToBeSignedBuffer, [PUBLIC_KEY_NOT_FOUND_PASS.r, PUBLIC_KEY_NOT_FOUND_PASS.s], 1);
     const JackSparrow = ["Jack", "Sparrow", "1960-04-16"];
     // We're deviating from the spec here, since Ministry of Health is not going to issue passes with mismatching kid.
     expect(result).to.deep.equal(JackSparrow);
@@ -157,22 +159,32 @@ describe("NZCP", function () {
 
   it("Should fail MODIFIED_SIGNATURE_PASS", async function () {
     const nzcp = await setupNZCP();
-    expect(nzcp.parseAndVerifyToBeSignedBuffer(MODIFIED_SIGNATURE_PASS.ToBeSignedBuffer, [MODIFIED_SIGNATURE_PASS.r, MODIFIED_SIGNATURE_PASS.s], 1)).to.be.revertedWith("Invalid signature");
+    expect(
+      nzcp.parseAndVerifyToBeSignedBuffer(
+        MODIFIED_SIGNATURE_PASS.ToBeSignedBuffer, [MODIFIED_SIGNATURE_PASS.r, MODIFIED_SIGNATURE_PASS.s], 1)
+    ).to.be.revertedWith("Invalid signature");
   });
 
   it("Should fail MODIFIED_PAYLOAD_PASS", async function () {
     const nzcp = await setupNZCP();
-    expect(nzcp.parseAndVerifyToBeSignedBuffer(MODIFIED_PAYLOAD_PASS.ToBeSignedBuffer, [MODIFIED_PAYLOAD_PASS.r, MODIFIED_PAYLOAD_PASS.s], 1)).to.be.revertedWith("Invalid signature");
+    expect(
+      nzcp.parseAndVerifyToBeSignedBuffer(
+        MODIFIED_PAYLOAD_PASS.ToBeSignedBuffer, [MODIFIED_PAYLOAD_PASS.r, MODIFIED_PAYLOAD_PASS.s], 1)
+    ).to.be.revertedWith("Invalid signature");
   });
 
   it("Should fail EXPIRED_PASS", async function () {
     const nzcp = await setupNZCP();
-    expect(nzcp.parseAndVerifyToBeSignedBuffer(EXPIRED_PASS.ToBeSignedBuffer, [EXPIRED_PASS.r, EXPIRED_PASS.s], 1)).to.be.revertedWith("Pass expired");
+    expect(
+      nzcp.parseAndVerifyToBeSignedBuffer(
+        EXPIRED_PASS.ToBeSignedBuffer, [EXPIRED_PASS.r, EXPIRED_PASS.s], 1)
+    ).to.be.revertedWith("Pass expired");
   });
 
   it("Should parse NOT_ACTIVE_PASS while violating spec", async function () {
     const nzcp = await setupNZCP();
-    const result = await nzcp.parseAndVerifyToBeSignedBuffer(NOT_ACTIVE_PASS.ToBeSignedBuffer, [NOT_ACTIVE_PASS.r, NOT_ACTIVE_PASS.s], 1);
+    const result = await nzcp.parseAndVerifyToBeSignedBuffer(
+      NOT_ACTIVE_PASS.ToBeSignedBuffer, [NOT_ACTIVE_PASS.r, NOT_ACTIVE_PASS.s], 1);
     const JackSparrow = ["Jack", "Sparrow", "1960-04-16"];
     // Deviating from spec again, since Ministry of Health is not going to issue passes which are not yet active.
     expect(result).to.deep.equal(JackSparrow);
