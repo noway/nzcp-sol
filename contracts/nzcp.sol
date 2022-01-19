@@ -65,7 +65,7 @@ contract NZCP is EllipticCurve {
             return (pos, value);
         }
         else {
-            console.log("x is not in supported range", x);
+            // console.log("x is not in supported range", x);
             require(false, "x is not in supported range");
         }
     }
@@ -92,36 +92,36 @@ contract NZCP is EllipticCurve {
         if (cbor_type == MAJOR_TYPE_INT) {
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
-            console.log("skipping MAJOR_TYPE_INT", value);
+            // console.log("skipping MAJOR_TYPE_INT", value);
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_NEGATIVE_INT) {
-            console.log("skipping MAJOR_TYPE_NEGATIVE_INT");
+            // console.log("skipping MAJOR_TYPE_NEGATIVE_INT");
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
             value = ~value;
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_BYTES) {
-            console.log("skipping MAJOR_TYPE_BYTES");
+            // console.log("skipping MAJOR_TYPE_BYTES");
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
             pos += len;
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_STRING) {
-            console.log("skipping MAJOR_TYPE_STRING");
+            // console.log("skipping MAJOR_TYPE_STRING");
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
-            console.log("string len", len);
+            // console.log("string len", len);
             pos += len;
             return pos;
         }
         else if (cbor_type == MAJOR_TYPE_ARRAY) {
-            console.log("skipping MAJOR_TYPE_ARRAY");
+            // console.log("skipping MAJOR_TYPE_ARRAY");
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
-            console.log("array len", len);
+            // console.log("array len", len);
             for (uint i = 0; i < len; i++) {
                 pos = skipCBORValue(buffer, pos);
             }
@@ -129,10 +129,10 @@ contract NZCP is EllipticCurve {
         }
         else if (cbor_type == MAJOR_TYPE_MAP) {
             // TODO: not tested
-            console.log("skipping MAJOR_TYPE_MAP");
+            // console.log("skipping MAJOR_TYPE_MAP");
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
-            console.log("map len", len);
+            // console.log("map len", len);
             for (uint i = 0; i < len; i++) {
                 pos = skipCBORValue(buffer, pos);
                 pos = skipCBORValue(buffer, pos);
@@ -176,7 +176,7 @@ contract NZCP is EllipticCurve {
             if (cbor_type2 == MAJOR_TYPE_INT) {
                 uint int_key;
                 (pos, int_key) = decodeCBORUint(buffer, pos, v2);
-                console.log("got int key!!", int_key);
+                // console.log("got int key!!", int_key);
                 pos = skipCBORValue(buffer, pos); // skip value
             }
             else if (cbor_type2 == MAJOR_TYPE_STRING) {
@@ -185,19 +185,19 @@ contract NZCP is EllipticCurve {
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
-                console.log("got to string!!", key);
+                // console.log("got to string!!", key);
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(needles[needle_pos]))) {
                     if (needle_pos + 1 >= needles.length) {
-                        console.log("found all needles");
+                        // console.log("found all needles");
                         return pos;
                     }
                     else {
-                        console.log("about to parse:", needles[needle_pos]);
+                        // console.log("about to parse:", needles[needle_pos]);
                         return searchCBORTree(buffer, pos, needles, needle_pos + 1);
                     }
                 }
                 else {
-                    console.log("skipping string key", key);
+                    // console.log("skipping string key", key);
                     pos = skipCBORValue(buffer, pos); // skip value
                 }
             }
@@ -225,22 +225,22 @@ contract NZCP is EllipticCurve {
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
-                console.log("got to string!!", key);
+                // console.log("got to string!!", key);
 
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
-                    console.log("found givenName");
+                    // console.log("found givenName");
                     (pos, givenName) = readStringValue(buffer, pos);
                 }
                 else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("familyName"))) {
-                    console.log("found familyName");
+                    // console.log("found familyName");
                     (pos, familyName) = readStringValue(buffer, pos);
                 }
                 else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("dob"))) {
-                    console.log("found dob");                    
+                    // console.log("found dob");                    
                     (pos, dob) = readStringValue(buffer, pos);
                 }
                 else {
-                    console.log("skipping string key", key);
+                    // console.log("skipping string key", key);
                     pos = skipCBORValue(buffer, pos); // skip value
                 }
             }
