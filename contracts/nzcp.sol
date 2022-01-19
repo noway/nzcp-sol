@@ -301,10 +301,7 @@ contract NZCP is EllipticCurve {
 
         uint credentialSubjectPos = findCredentialSubject(buffer, claims_skip, 0);
 
-        string memory givenName;
-        string memory familyName;
-        string memory dob;
-        (givenName, familyName, dob) = readCredentialSubject(buffer, credentialSubjectPos);
+        (string memory givenName, string memory familyName, string memory dob) = readCredentialSubject(buffer, credentialSubjectPos);
 
         console.log("givenName:", givenName);
         console.log("familyName:", familyName);
