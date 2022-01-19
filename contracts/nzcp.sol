@@ -34,7 +34,7 @@ contract NZCP is EllipticCurve {
 
     // 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSignedBuffer
     // And get to the CWT claims straight away
-    uint private claims_skip = 27; // TODO: make a macro macro
+    uint private constant claims_skip = 27; // TODO: make a macro macro
     
     // Path to get to the credentialSubject map inside CWT claims
     string[] private credential_subject_path = ["vc", "credentialSubject"];
