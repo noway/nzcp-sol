@@ -103,7 +103,7 @@ contract NZCP is EllipticCurve {
         return (pos + len, str);
     }
 
-    function skipCBORValue(bytes memory buffer, uint pos) private view returns (uint) {
+    function skipCBORValue(bytes memory buffer, uint pos) private pure returns (uint) {
         uint v;
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
@@ -237,7 +237,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function readCredentialSubject(bytes memory buffer, uint pos) private view returns (string memory, string memory, string memory) {
+    function readCredentialSubject(bytes memory buffer, uint pos) private pure returns (string memory, string memory, string memory) {
         uint maplen;
         (pos, maplen) = readMapLength(buffer, pos);
 
