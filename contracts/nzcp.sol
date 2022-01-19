@@ -23,7 +23,12 @@ contract NZCP is EllipticCurve {
     uint public constant LIVE_X = 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7;
     uint public constant LIVE_Y = 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662;
 
-    string[] private needles = ["vc", "credentialSubject"];
+    // 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSignedBuffer
+    // And get to the CWT claims straight away
+    uint private claims_skip = 27; // TODO: make a macro macro
+    
+    // Path to get to the credentialSubject map inside CWT claims
+    string[] private credential_subject_path = ["vc", "credentialSubject"];
 
     function memcpy(uint dest, uint src, uint len) private pure {
         // Copy word-length chunks while possible
@@ -213,13 +218,13 @@ contract NZCP is EllipticCurve {
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, len);
                 // console.log("got to string!!", key);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(needles[needle_pos]))) {
-                    if (needle_pos + 1 >= needles.length) { // TODO: macro
-                        // console.log("found all needles");
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(credential_subject_path[needle_pos]))) {
+                    if (needle_pos + 1 >= credential_subject_path.length) { // TODO: macro
+                        // console.log("found all credential_subject_path");
                         return pos;
                     }
                     else {
-                        // console.log("about to parse:", needles[needle_pos]);
+                        // console.log("about to parse:", credential_subject_path[needle_pos]);
                         return findCredentialSubject(buffer, pos, needle_pos + 1);
                     }
                 }
@@ -294,9 +299,7 @@ contract NZCP is EllipticCurve {
 
     function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view returns (bool) {
 
-        uint skip = 27; // 27 bytes for ["Signature1", headers, buffer0] // TODO: macro
-
-        uint credentialSubjectPos = findCredentialSubject(buffer, skip, 0);
+        uint credentialSubjectPos = findCredentialSubject(buffer, claims_skip, 0);
 
         string memory givenName;
         string memory familyName;
