@@ -44,7 +44,6 @@ describe("NZCP", function () {
 
     // Create random message and sha256-hash it.
     var message = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
-    console.log('Message: ' + message);
     const messageHash = ethereumJSUtil.bufferToHex(ethereumJSUtil.sha256(Buffer.from(message)));
 
     // Create signature.
