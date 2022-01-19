@@ -197,10 +197,10 @@ contract NZCP is EllipticCurve {
 
                     uint256 exp;
                     (pos, exp) = decodeCBORUint(buffer, pos, v2);
-                    // pos = skipCBORValue(buffer, pos); // skip value
-                    // console.log(v2);
-                    console.log(exp);
+                    require(block.timestamp < exp, "Pass expired"); // check if pass expired
                 }
+                // We do not check for whether pass is active, since we assume
+                // That New Zealand Ministry of Health only issues active passes
                 else {
                     pos = skipCBORValue(buffer, pos); // skip value
                 }
