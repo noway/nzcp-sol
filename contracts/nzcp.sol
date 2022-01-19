@@ -291,6 +291,10 @@ contract NZCP is EllipticCurve {
         string memory dob;
         (givenName, familyName, dob) = decodeCredentialSubject(claims, credentialSubjectPos);
 
+        console.log("givenName:", givenName);
+        console.log("familyName:", familyName);
+        console.log("dob:", dob);
+
 
         return true;
     }
