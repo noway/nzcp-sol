@@ -5,6 +5,9 @@ import "./EllipticCurve.sol";
 
 // TODO: make all uints uint8
 
+// NZCP implementation in Solidity
+// Verifies NZCP pass and returns credential subject
+// Reverts transaction if pass is invalid
 contract NZCP is EllipticCurve {
     string private greeting;
 
@@ -284,29 +287,36 @@ contract NZCP is EllipticCurve {
     }
 
 
+    // Verifies NZCP message hash signature
+    // Returns true if signature is valid, reverts transaction otherwise
     function verifySignature(bytes32 messageHash, uint[2] memory rs, bool is_example) public pure returns (bool) {
         if (is_example) {
-            return validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]);
+            require(validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), "Invalid signature");
+            return true;
         }
         else {
-            return validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]);
+            require(validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]),  "Invalid signature");
+            return true;
         }
     }
 
+    // Verifies NZCP ToBeSignedBuffer
+    // Returns true if signature is valid, reverts transaction otherwise
     function verifyToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public pure returns (bool) {
         return verifySignature(sha256(buffer), rs, is_example);
     }
 
-    function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view returns (bool) {
+    // Parses ToBeSignedBuffer and returns the credential subject
+    // Returns credential subject if pass is valid, reverts transaction otherwise
+    function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint[2] memory rs, bool is_example) public view 
+        returns (string memory, string memory, string memory) {
 
         uint credentialSubjectPos = findCredentialSubject(buffer, claims_skip, 0);
 
         (string memory givenName, string memory familyName, string memory dob) = readCredentialSubject(buffer, credentialSubjectPos);
 
-        console.log("givenName:", givenName);
-        console.log("familyName:", familyName);
-        console.log("dob:", dob);
+        verifyToBeSignedBuffer(buffer, rs, is_example);
 
-        return verifyToBeSignedBuffer(buffer, rs, is_example);
+        return (givenName, familyName, dob);
     }
 }

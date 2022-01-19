@@ -107,7 +107,8 @@ describe("NZCP", function () {
     const s = "0xFBA88A529F675D6686EE632B09EC581AB08F72B458904BB3396D10FA66D11477";
 
     const result = await nzcp.parseAndVerifyToBeSignedBuffer(toBeSignedBuffer, [r, s], 1)
-    expect(result).to.equal(true);
+    const john = ["Jack", "Sparrow", "1960-04-16"];
+    expect(result).to.deep.equal(john);
 
   });
 });
