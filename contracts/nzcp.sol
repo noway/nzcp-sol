@@ -292,6 +292,7 @@ contract NZCP is EllipticCurve {
 
     // Verifies NZCP ToBeSignedBuffer
     // Returns true if signature is valid, reverts transaction otherwise
+    // TODO: remove this function
     function verifyToBeSignedBuffer(bytes memory buffer, uint256[2] memory rs, bool is_example) public pure returns (bool) {
         return verifySignature(sha256(buffer), rs, is_example);
     }
