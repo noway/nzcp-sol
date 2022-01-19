@@ -3,22 +3,20 @@ pragma solidity ^0.8.11;
 import "hardhat/console.sol";
 import "./EllipticCurve.sol";
 
-// TODO: make all uints uint8
-
 // NZCP implementation in Solidity
 // - Verifies NZCP pass and returns credential subject.
 // - Reverts transaction if pass is invalid.
 // - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSignedBuffer.
 contract NZCP is EllipticCurve {
 
-    uint8 private constant MAJOR_TYPE_INT = 0;
-    uint8 private constant MAJOR_TYPE_NEGATIVE_INT = 1;
-    uint8 private constant MAJOR_TYPE_BYTES = 2;
-    uint8 private constant MAJOR_TYPE_STRING = 3;
-    uint8 private constant MAJOR_TYPE_ARRAY = 4;
-    uint8 private constant MAJOR_TYPE_MAP = 5;
-    uint8 private constant MAJOR_TYPE_TAG = 6;
-    uint8 private constant MAJOR_TYPE_CONTENT_FREE = 7;
+    uint private constant MAJOR_TYPE_INT = 0;
+    uint private constant MAJOR_TYPE_NEGATIVE_INT = 1;
+    uint private constant MAJOR_TYPE_BYTES = 2;
+    uint private constant MAJOR_TYPE_STRING = 3;
+    uint private constant MAJOR_TYPE_ARRAY = 4;
+    uint private constant MAJOR_TYPE_MAP = 5;
+    uint private constant MAJOR_TYPE_TAG = 6;
+    uint private constant MAJOR_TYPE_CONTENT_FREE = 7;
 
     // "key-1" public key published here:
     // https://nzcp.covid19.health.nz/.well-known/did.json
