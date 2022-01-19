@@ -84,9 +84,9 @@ contract NZCP is EllipticCurve {
     }
 
     function skipCBORValue(bytes memory buffer, uint pos) private view returns (uint) {
-        uint v = uint8(buffer[pos]);
-        pos++;
-        uint cbor_type = v >> 5;
+        uint v;
+        uint cbor_type;
+        (pos, cbor_type, v) = readType(buffer, pos);
 
         if (cbor_type == MAJOR_TYPE_INT) {
             uint value;
