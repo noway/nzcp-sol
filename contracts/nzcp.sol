@@ -15,7 +15,6 @@ contract NZCP is EllipticCurve {
     uint8 private constant MAJOR_TYPE_TAG = 6;
     uint8 private constant MAJOR_TYPE_CONTENT_FREE = 7;
 
-
     uint public constant EXAMPLE_X = 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD;
     uint public constant EXAMPLE_Y = 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D;
 
@@ -145,13 +144,12 @@ contract NZCP is EllipticCurve {
     }
 
     function readStringValue(bytes memory buffer, uint pos) private view returns (uint, string memory) {
-        uint v3 = uint8(buffer[pos]);
+        uint v = uint8(buffer[pos]);
         pos++;
-        uint cbor_type3 = v3 >> 5; // TODO: check that it's string
+        uint cbor_type = v >> 5;
+        require(cbor_type == MAJOR_TYPE_STRING, "cbor_type expected to be string");
         uint value_len;
-        (pos, value_len) = decodeCBORUint(buffer, pos, v3);
-
-
+        (pos, value_len) = decodeCBORUint(buffer, pos, v);
         return decodeString(buffer, pos, value_len);
     }
 
