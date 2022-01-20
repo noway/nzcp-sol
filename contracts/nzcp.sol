@@ -42,6 +42,10 @@ contract NZCP is EllipticCurve {
     // TODO: constant or a macro
     string[] private CREDENTIAL_SUBJECT_PATH = ["vc", "credentialSubject"];
 
+    // CREDENTIAL_SUBJECT_PATH.length
+    // TODO: macro
+    uint private constant CREDENTIAL_SUBJECT_PATH_LENGTH = 2;
+
     function memcpy(uint dest, uint src, uint len) private pure {
         // Copy word-length chunks while possible
         for(; len >= 32; len -= 32) {
@@ -224,7 +228,7 @@ contract NZCP is EllipticCurve {
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, strlen);
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[path_index]))) {
-                    if (path_index + 1 >= CREDENTIAL_SUBJECT_PATH.length) { // TODO: macro
+                    if (path_index + 1 >= CREDENTIAL_SUBJECT_PATH_LENGTH) {
                         return pos;
                     }
                     else {
