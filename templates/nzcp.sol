@@ -174,9 +174,9 @@ contract NZCP is EllipticCurve {
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
         require(cbortype == MAJOR_TYPE_STRING, "cbortype expected to be string");
-        uint value_len;
-        (pos, value_len) = decodeUint(buffer, pos, v);
-        return decodeString(buffer, pos, value_len);
+        uint valuelen;
+        (pos, valuelen) = decodeUint(buffer, pos, v);
+        return decodeString(buffer, pos, valuelen);
     }
 
     function readMapLength(bytes memory buffer, uint pos) private pure returns (uint, uint) {
@@ -191,7 +191,7 @@ contract NZCP is EllipticCurve {
 
     // Recursively searches the position of credential subject in the CWT claims
     // Side effects: reverts transaction if pass is expired.
-    function findCredentialSubject(bytes memory buffer, uint pos, uint path_index) private view returns (uint) {
+    function findCredentialSubject(bytes memory buffer, uint pos, uint pathindex) private view returns (uint) {
         uint maplen;
         (pos, maplen) = readMapLength(buffer, pos);
 
@@ -205,9 +205,9 @@ contract NZCP is EllipticCurve {
                 (pos, key) = decodeUint(buffer, pos, v);
                 if (key == 4) {
                     uint v2;
-                    uint cbor_type2;
-                    (pos, cbor_type2, v2) = readType(buffer, pos);
-                    require(cbor_type2 == MAJOR_TYPE_INT, "cbortype expected to be integer");
+                    uint cbortype2;
+                    (pos, cbortype2, v2) = readType(buffer, pos);
+                    require(cbortype2 == MAJOR_TYPE_INT, "cbortype expected to be integer");
 
                     uint exp;
                     (pos, exp) = decodeUint(buffer, pos, v2);
@@ -225,12 +225,12 @@ contract NZCP is EllipticCurve {
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, strlen);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[path_index]))) {
-                    if (path_index >= CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1) {
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[pathindex]))) {
+                    if (pathindex >= CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1) {
                         return pos;
                     }
                     else {
-                        return findCredentialSubject(buffer, pos, path_index + 1);
+                        return findCredentialSubject(buffer, pos, pathindex + 1);
                     }
                 }
                 else {
