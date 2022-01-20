@@ -37,6 +37,7 @@ contract NZCP is EllipticCurve {
     uint private constant claims_skip = 27; // TODO: make a macro macro
     
     // Path to get to the credentialSubject map inside CWT claims
+    // TODO: constant or a macro
     string[] private credential_subject_path = ["vc", "credentialSubject"];
 
     function memcpy(uint dest, uint src, uint len) private pure {
