@@ -173,9 +173,7 @@ contract NZCP is EllipticCurve {
 
     function readType(bytes memory buffer, uint pos) private pure returns (uint, uint, uint) {
         uint v = uint8(buffer[pos]);
-        pos++;
-        uint cbortype = v >> 5;
-        return (pos, cbortype, v);
+        return (++pos, v >> 5, v);
     }
 
     function readStringValue(bytes memory buffer, uint pos) private pure returns (uint, string memory) {
