@@ -109,7 +109,7 @@ contract NZCP is EllipticCurve {
             return (pos, value);
         }
         else {
-            require_r(false, UnsupportedCBORUint);
+            revert UnsupportedCBORUint();
         }
     }
 
@@ -179,7 +179,7 @@ contract NZCP is EllipticCurve {
         }
         */
         else {
-            require_r(false, UnexpectedCBORType);
+            revert UnexpectedCBORType();
         }
     }
 
@@ -258,7 +258,7 @@ contract NZCP is EllipticCurve {
                 }
             }
             else {
-                require_r(false, UnexpectedCBORType);
+                revert UnexpectedCBORType();
             }
         }
     }
