@@ -264,31 +264,20 @@ contract NZCP is EllipticCurve {
         string memory dob;
 
         for (uint i = 0; i < maplen; i++) {
-            uint v;
-            uint cbortype;
-            (pos, cbortype, v) = readType(buffer, pos);
-            if (cbortype == MAJOR_TYPE_STRING) {
-                uint strlen;
-                (pos, strlen) = decodeUint(buffer, pos, v);
+            string memory key;
+            (pos, key) = readStringValue(buffer, pos);
 
-                string memory key;
-                (pos, key) = decodeString(buffer, pos, strlen);
-
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
-                    (pos, givenName) = readStringValue(buffer, pos);
-                }
-                else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("familyName"))) {
-                    (pos, familyName) = readStringValue(buffer, pos);
-                }
-                else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("dob"))) {
-                    (pos, dob) = readStringValue(buffer, pos);
-                }
-                else {
-                    pos = skipValue(buffer, pos); // skip value
-                }
+            if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
+                (pos, givenName) = readStringValue(buffer, pos);
+            }
+            else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("familyName"))) {
+                (pos, familyName) = readStringValue(buffer, pos);
+            }
+            else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("dob"))) {
+                (pos, dob) = readStringValue(buffer, pos);
             }
             else {
-                require(false, "map key is of an supported type");
+                pos = skipValue(buffer, pos); // skip value
             }
         }
         return (givenName, familyName, dob);
