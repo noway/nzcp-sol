@@ -162,7 +162,7 @@ contract NZCP is EllipticCurve {
         }
         else if (cbortype == MAJOR_TYPE_ARRAY) {
             (pos, value) = decodeUint(buffer, pos, v);
-            for (uint i = 0; i < value; i++) {
+            for (uint i = 0; i++ < value;) {
                 pos = skipValue(buffer, pos);
             }
             return pos;
@@ -171,7 +171,7 @@ contract NZCP is EllipticCurve {
         // Commented out to save gas
         else if (cbortype == MAJOR_TYPE_MAP) {
             (pos, value) = decodeUint(buffer, pos, v);
-            for (uint i = 0; i < value; i++) {
+            for (uint i = 0; i++ < value;) {
                 pos = skipValue(buffer, pos);
                 pos = skipValue(buffer, pos);
             }
@@ -214,7 +214,7 @@ contract NZCP is EllipticCurve {
         uint maplen;
         (pos, maplen) = readMapLength(buffer, pos);
 
-        for (uint i = 0; i < maplen; i++) {
+        for (uint i = 0; i++ < maplen;) {
             uint v;
             uint cbortype;
             (pos, cbortype, v) = readType(buffer, pos);
@@ -270,7 +270,7 @@ contract NZCP is EllipticCurve {
         string memory dob;
 
         string memory key;
-        for (uint i = 0; i < maplen; i++) {
+        for (uint i = 0; i++ < maplen;) {
             (pos, key) = readStringValue(buffer, pos);
 
             if (keccak256(abi.encodePacked(key)) == givenName_KECCAK256) {
