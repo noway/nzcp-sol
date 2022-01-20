@@ -10,7 +10,17 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
 });
 
 module.exports = {
-  solidity: "0.8.11",
+  solidity: {
+    version: "0.8.11",
+    settings: {
+      optimizer: {
+        enabled: false,
+        // runs: 1000,
+      },
+    },
+  },
+
+  // solidity: "",
   paths: {
     sources: "./contracts",
     tests: "./test",
