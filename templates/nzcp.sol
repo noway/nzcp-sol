@@ -1,6 +1,7 @@
 pragma solidity ^0.8.11;
 
 import "./EllipticCurve.sol";
+import "./Strings.sol";
 
 
 /* CBOR types */
@@ -71,26 +72,8 @@ error UnsupportedCBORUint();
 /// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned value.
 /// - The definition of ToBeSigned can be found in https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
-contract NZCP is EllipticCurve {
+contract NZCP is EllipticCurve, Strings {
 
-    function memcpy(uint dest, uint src, uint len) private pure {
-        // Copy word-length chunks while possible
-        for(; len >= 32; len -= 32) {
-            assembly {
-                mstore(dest, mload(src))
-            }
-            dest += 32;
-            src += 32;
-        }
-
-        // Copy remaining bytes
-        uint mask = 256 ** (32 - len) - 1;
-        assembly {
-            let srcpart := and(mload(src), not(mask))
-            let destpart := and(mload(dest), mask)
-            mstore(dest, or(destpart, srcpart))
-        }
-    }
 
     function decodeUint(bytes memory buffer, uint pos, uint v) private pure returns (uint, uint) {
         uint x = v & 31;
