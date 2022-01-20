@@ -70,7 +70,7 @@ error UnsupportedCBORUint();
 /// - Verifies NZCP pass and returns the credential subject (givenName, familyName, dob)
 /// - Reverts transaction if pass is invalid.
 /// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned value.
-/// - The definition of ToBeSigned can be found in https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
+/// - The definition of ToBeSigned can be found here: https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
 contract NZCP is EllipticCurve, Strings {
 
