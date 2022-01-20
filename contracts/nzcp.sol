@@ -290,13 +290,6 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    // Verifies NZCP ToBeSignedBuffer
-    // Returns true if signature is valid, reverts transaction otherwise
-    // TODO: remove this function
-    function verifyToBeSignedBuffer(bytes memory buffer, uint256[2] memory rs, bool is_example) public pure returns (bool) {
-        return verifySignature(sha256(buffer), rs, is_example);
-    }
-
     // Parses ToBeSignedBuffer and returns the credential subject
     // Returns credential subject if pass is valid, reverts transaction otherwise
     function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint256[2] memory rs, bool is_example) public view 
@@ -306,7 +299,7 @@ contract NZCP is EllipticCurve {
 
         (string memory givenName, string memory familyName, string memory dob) = readCredentialSubject(buffer, credentialSubjectPos);
 
-        verifyToBeSignedBuffer(buffer, rs, is_example);
+        verifySignature(sha256(buffer), rs, is_example);
 
         return (givenName, familyName, dob);
     }

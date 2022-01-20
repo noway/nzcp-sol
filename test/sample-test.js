@@ -126,12 +126,6 @@ describe("NZCP", function () {
 
   })
 
-  it("Should verify signature with ToBeSignedBuffer", async function () {
-    const nzcp = await setupNZCP()
-    expect(await nzcp.verifyToBeSignedBuffer(
-      EXAMPLE_PASS.ToBeSignedBuffer, [EXAMPLE_PASS.r, EXAMPLE_PASS.s], 1)).to.equal(true);
-  });
-
   it("Should parse credential subject in ToBeSignedBuffer", async function () {
     const nzcp = await setupNZCP()
     const result = await nzcp.parseAndVerifyToBeSignedBuffer(
