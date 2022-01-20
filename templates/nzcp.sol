@@ -191,7 +191,7 @@ contract NZCP is EllipticCurve {
 
     // Recursively searches the position of credential subject in the CWT claims
     // Side effects: reverts transaction if pass is expired.
-    function findCredentialSubject(bytes memory buffer, uint pos, uint pathindex) private view returns (uint) {
+    function findCredSubj(bytes memory buffer, uint pos, uint pathindex) private view returns (uint) {
         uint maplen;
         (pos, maplen) = readMapLength(buffer, pos);
 
@@ -230,7 +230,7 @@ contract NZCP is EllipticCurve {
                         return pos;
                     }
                     else {
-                        return findCredentialSubject(buffer, pos, pathindex + 1);
+                        return findCredSubj(buffer, pos, pathindex + 1);
                     }
                 }
                 else {
@@ -243,7 +243,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function readCredentialSubject(bytes memory buffer, uint pos) private pure returns (string memory, string memory, string memory) {
+    function decodeCredSubj(bytes memory buffer, uint pos) private pure returns (string memory, string memory, string memory) {
         uint maplen;
         (pos, maplen) = readMapLength(buffer, pos);
 
@@ -292,8 +292,6 @@ contract NZCP is EllipticCurve {
 
         verifySign(sha256(ToBeSigned), rs, isExample);
 
-        uint credentialSubjectPos = findCredentialSubject(ToBeSigned, CLAIMS_SKIP, 0);
-
-        return readCredentialSubject(ToBeSigned, credentialSubjectPos);
+        return decodeCredSubj(ToBeSigned, findCredSubj(ToBeSigned, CLAIMS_SKIP, 0));
     }
 }
