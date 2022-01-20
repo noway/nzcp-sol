@@ -190,22 +190,20 @@ contract NZCP is EllipticCurve {
 
     function readStringValue(bytes memory buffer, uint pos) private pure returns (uint, string memory) {
         uint v;
-        uint cbortype;
-        (pos, cbortype, v) = readType(buffer, pos);
-        revert_if(cbortype != MAJOR_TYPE_STRING, UnexpectedCBORType);
-        uint valuelen;
-        (pos, valuelen) = decodeUint(buffer, pos, v);
-        return decodeString(buffer, pos, valuelen);
+        uint value;
+        (pos, value, v) = readType(buffer, pos);
+        revert_if(value != MAJOR_TYPE_STRING, UnexpectedCBORType);
+        (pos, value) = decodeUint(buffer, pos, v);
+        return decodeString(buffer, pos, value);
     }
 
     function readMapLength(bytes memory buffer, uint pos) private pure returns (uint, uint) {
         uint v;
-        uint cbortype;
-        (pos, cbortype, v) = readType(buffer, pos);
-        revert_if(cbortype != MAJOR_TYPE_MAP, UnexpectedCBORType);
-        uint maplen;
-        (pos, maplen) = decodeUint(buffer, pos, v);
-        return (pos, maplen);
+        uint value;
+        (pos, value, v) = readType(buffer, pos);
+        revert_if(value != MAJOR_TYPE_MAP, UnexpectedCBORType);
+        (pos, value) = decodeUint(buffer, pos, v);
+        return (pos, value);
     }
 
     // Recursively searches the position of credential subject in the CWT claims
