@@ -121,11 +121,10 @@ contract NZCP is EllipticCurve {
         assembly { strptr := add(str, 32) }
         
         // 32 is the length of the string header
-        uint skip = 32 + pos;
         uint bufferptr;
-        assembly { bufferptr := add(buffer, skip) }
+        assembly { bufferptr := add(buffer, 32) }
 
-        memcpy(strptr, bufferptr, len);
+        memcpy(strptr, bufferptr + pos, len);
 
         return (pos + len, str);
     }
