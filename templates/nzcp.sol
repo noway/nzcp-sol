@@ -2,11 +2,6 @@ pragma solidity ^0.8.11;
 
 import "./EllipticCurve.sol";
 
-// NZCP implementation in Solidity
-// - Verifies NZCP pass and returns credential subject.
-// - Reverts transaction if pass is invalid.
-// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned.
-// - ToBeSigned is defined in https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
@@ -67,6 +62,14 @@ error UnexpectedCBORType();
 error UnsupportedCBORUint();
 
 #define revert_if(a, b) if (a) revert b()
+
+/// @title NZCP
+/// @author noway421.eth
+/// @notice New Zealand COVID Pass verifier implementation in Solidity
+/// - Verifies NZCP pass and returns the credential subject (givenName, familyName, dob)
+/// - Reverts transaction if pass is invalid.
+/// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned value.
+/// - The definition of ToBeSigned can be found in https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
 contract NZCP is EllipticCurve {
 
