@@ -292,6 +292,7 @@ contract NZCP is EllipticCurve {
 
     // Parses ToBeSignedBuffer and returns the credential subject
     // Returns credential subject if pass is valid, reverts transaction otherwise
+    // https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
     function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint256[2] memory rs, bool is_example) public view 
         returns (string memory, string memory, string memory) {
 
