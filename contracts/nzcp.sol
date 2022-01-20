@@ -6,7 +6,9 @@ import "./EllipticCurve.sol";
 // NZCP implementation in Solidity
 // - Verifies NZCP pass and returns credential subject.
 // - Reverts transaction if pass is invalid.
-// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSignedBuffer.
+// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned.
+// - ToBeSigned is defined in https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
+
 contract NZCP is EllipticCurve {
 
     // CBOR types
@@ -22,17 +24,17 @@ contract NZCP is EllipticCurve {
 
     // "key-1" public key published here:
     // https://nzcp.covid19.health.nz/.well-known/did.json
-    // Doesn't suppose to change unless MoH leaks their private key
+    // Doesn't suppose to change unless NZ MoH leaks their private key
     uint256 public constant EXAMPLE_X = 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD;
     uint256 public constant EXAMPLE_Y = 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D;
 
     // "z12Kf7UQ" public key published here:
     // https://nzcp.identity.health.nz/.well-known/did.json
-    // Doesn't suppose to change unless MoH leaks their private key
+    // Doesn't suppose to change unless NZ MoH leaks their private key
     uint256 public constant LIVE_X = 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7;
     uint256 public constant LIVE_Y = 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662;
 
-    // 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSignedBuffer
+    // 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSigned
     // And get to the CWT claims straight away
     uint private constant CLAIMS_SKIP = 27; // TODO: make a macro macro
     
@@ -59,7 +61,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    function decodeCBORUint(bytes memory buffer, uint pos, uint v) private pure returns (uint, uint) {
+    function decodeUint(bytes memory buffer, uint pos, uint v) private pure returns (uint, uint) {
         uint x = v & 31;
         if (x <= 23) {
             return (pos, x);
@@ -104,50 +106,50 @@ contract NZCP is EllipticCurve {
         return (pos + len, str);
     }
 
-    function skipCBORValue(bytes memory buffer, uint pos) private pure returns (uint) {
+    function skipValue(bytes memory buffer, uint pos) private pure returns (uint) {
         uint v;
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
 
         uint value;
         if (cbortype == MAJOR_TYPE_INT) {
-            (pos, value) = decodeCBORUint(buffer, pos, v);
+            (pos, value) = decodeUint(buffer, pos, v);
             return pos;
         }
         /*
         // Commented out to save gas
         else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
-            (pos, value) = decodeCBORUint(buffer, pos, v);
+            (pos, value) = decodeUint(buffer, pos, v);
             return pos;
         }
         */
         /*
         // Commented out to save gas
         else if (cbortype == MAJOR_TYPE_BYTES) {
-            (pos, value) = decodeCBORUint(buffer, pos, v);
+            (pos, value) = decodeUint(buffer, pos, v);
             pos += value;
             return pos;
         }
         */
         else if (cbortype == MAJOR_TYPE_STRING) {
-            (pos, value) = decodeCBORUint(buffer, pos, v);
+            (pos, value) = decodeUint(buffer, pos, v);
             pos += value;
             return pos;
         }
         else if (cbortype == MAJOR_TYPE_ARRAY) {
-            (pos, value) = decodeCBORUint(buffer, pos, v);
+            (pos, value) = decodeUint(buffer, pos, v);
             for (uint i = 0; i < value; i++) {
-                pos = skipCBORValue(buffer, pos);
+                pos = skipValue(buffer, pos);
             }
             return pos;
         }
         /*
         // Commented out to save gas
         else if (cbortype == MAJOR_TYPE_MAP) {
-            (pos, value) = decodeCBORUint(buffer, pos, v);
+            (pos, value) = decodeUint(buffer, pos, v);
             for (uint i = 0; i < value; i++) {
-                pos = skipCBORValue(buffer, pos);
-                pos = skipCBORValue(buffer, pos);
+                pos = skipValue(buffer, pos);
+                pos = skipValue(buffer, pos);
             }
             return pos;
         }
@@ -171,7 +173,7 @@ contract NZCP is EllipticCurve {
         (pos, cbortype, v) = readType(buffer, pos);
         require(cbortype == MAJOR_TYPE_STRING, "cbortype expected to be string");
         uint value_len;
-        (pos, value_len) = decodeCBORUint(buffer, pos, v);
+        (pos, value_len) = decodeUint(buffer, pos, v);
         return decodeString(buffer, pos, value_len);
     }
 
@@ -181,13 +183,13 @@ contract NZCP is EllipticCurve {
         (pos, cbortype, v) = readType(buffer, pos);
         require(cbortype == MAJOR_TYPE_MAP, "cbortype expected to be map");
         uint maplen;
-        (pos, maplen) = decodeCBORUint(buffer, pos, v);
+        (pos, maplen) = decodeUint(buffer, pos, v);
         return (pos, maplen);
     }
 
     // Recursively searches the position of credential subject in the CWT claims
     // Side effects: reverts transaction if pass is expired.
-    function findCredentialSubject(bytes memory buffer, uint pos, uint needle_pos) private view returns (uint) {
+    function findCredentialSubject(bytes memory buffer, uint pos, uint path_index) private view returns (uint) {
         uint maplen;
         (pos, maplen) = readMapLength(buffer, pos);
 
@@ -198,7 +200,7 @@ contract NZCP is EllipticCurve {
 
             if (cbortype == MAJOR_TYPE_INT) {
                 uint key;
-                (pos, key) = decodeCBORUint(buffer, pos, v);
+                (pos, key) = decodeUint(buffer, pos, v);
                 if (key == 4) {
                     uint v2;
                     uint cbor_type2;
@@ -206,31 +208,31 @@ contract NZCP is EllipticCurve {
                     require(cbor_type2 == MAJOR_TYPE_INT, "cbortype expected to be integer");
 
                     uint exp;
-                    (pos, exp) = decodeCBORUint(buffer, pos, v2);
+                    (pos, exp) = decodeUint(buffer, pos, v2);
                     require(block.timestamp < exp, "Pass expired"); // check if pass expired
                 }
                 // We do not check for whether pass is active, since we assume
-                // That New Zealand Ministry of Health only issues active passes
+                // That the NZ MoH only issues active passes
                 else {
-                    pos = skipCBORValue(buffer, pos); // skip value
+                    pos = skipValue(buffer, pos); // skip value
                 }
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
                 uint strlen;
-                (pos, strlen) = decodeCBORUint(buffer, pos, v);
+                (pos, strlen) = decodeUint(buffer, pos, v);
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, strlen);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[needle_pos]))) {
-                    if (needle_pos + 1 >= CREDENTIAL_SUBJECT_PATH.length) { // TODO: macro
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[path_index]))) {
+                    if (path_index + 1 >= CREDENTIAL_SUBJECT_PATH.length) { // TODO: macro
                         return pos;
                     }
                     else {
-                        return findCredentialSubject(buffer, pos, needle_pos + 1);
+                        return findCredentialSubject(buffer, pos, path_index + 1);
                     }
                 }
                 else {
-                    pos = skipCBORValue(buffer, pos); // skip value
+                    pos = skipValue(buffer, pos); // skip value
                 }
             }
             else {
@@ -253,7 +255,7 @@ contract NZCP is EllipticCurve {
             (pos, cbortype, v) = readType(buffer, pos);
             if (cbortype == MAJOR_TYPE_STRING) {
                 uint strlen;
-                (pos, strlen) = decodeCBORUint(buffer, pos, v);
+                (pos, strlen) = decodeUint(buffer, pos, v);
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, strlen);
@@ -268,7 +270,7 @@ contract NZCP is EllipticCurve {
                     (pos, dob) = readStringValue(buffer, pos);
                 }
                 else {
-                    pos = skipCBORValue(buffer, pos); // skip value
+                    pos = skipValue(buffer, pos); // skip value
                 }
             }
             else {
@@ -278,11 +280,10 @@ contract NZCP is EllipticCurve {
         return (givenName, familyName, dob);
     }
 
-
     // Verifies NZCP message hash signature
     // Returns true if signature is valid, reverts transaction otherwise
-    function verifySignature(bytes32 messageHash, uint256[2] memory rs, bool is_example) public pure returns (bool) {
-        if (is_example) {
+    function verifySignature(bytes32 messageHash, uint256[2] memory rs, bool isExample) public pure returns (bool) {
+        if (isExample) {
             require(validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), "Invalid signature");
             return true;
         }
@@ -292,16 +293,16 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    // Parses ToBeSignedBuffer and returns the credential subject
+    // Parses ToBeSigned and returns the credential subject
     // Returns credential subject if pass is valid, reverts transaction otherwise
     // https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
-    function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint256[2] memory rs, bool is_example) public view 
+    function parseAndVerifyToBeSigned(bytes memory ToBeSigned, uint256[2] memory rs, bool isExample) public view 
         returns (string memory, string memory, string memory) {
 
-        verifySignature(sha256(buffer), rs, is_example);
+        verifySignature(sha256(ToBeSigned), rs, isExample);
 
-        uint credentialSubjectPos = findCredentialSubject(buffer, CLAIMS_SKIP, 0);
+        uint credentialSubjectPos = findCredentialSubject(ToBeSigned, CLAIMS_SKIP, 0);
 
-        return readCredentialSubject(buffer, credentialSubjectPos);
+        return readCredentialSubject(ToBeSigned, credentialSubjectPos);
     }
 }
