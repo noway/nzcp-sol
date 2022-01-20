@@ -41,11 +41,10 @@ import "./EllipticCurve.sol";
 // TODO: constant or a macro
 #define CREDENTIAL_SUBJECT_PATH ["vc", "credentialSubject"]
 
+// CREDENTIAL_SUBJECT_PATH.length
+#define CREDENTIAL_SUBJECT_PATH_LENGTH 2
+
 contract NZCP is EllipticCurve {
-
-
-    // CREDENTIAL_SUBJECT_PATH.length
-    uint private constant CREDENTIAL_SUBJECT_PATH_LENGTH = 2;
 
     function memcpy(uint dest, uint src, uint len) private pure {
         // Copy word-length chunks while possible
