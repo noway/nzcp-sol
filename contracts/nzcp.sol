@@ -34,11 +34,11 @@ contract NZCP is EllipticCurve {
 
     // 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSignedBuffer
     // And get to the CWT claims straight away
-    uint private constant claims_skip = 27; // TODO: make a macro macro
+    uint private constant CLAIMS_SKIP = 27; // TODO: make a macro macro
     
     // Path to get to the credentialSubject map inside CWT claims
     // TODO: constant or a macro
-    string[] private credential_subject_path = ["vc", "credentialSubject"];
+    string[] private CREDENTIAL_SUBJECT_PATH = ["vc", "credentialSubject"];
 
     function memcpy(uint dest, uint src, uint len) private pure {
         // Copy word-length chunks while possible
@@ -221,8 +221,8 @@ contract NZCP is EllipticCurve {
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, strlen);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(credential_subject_path[needle_pos]))) {
-                    if (needle_pos + 1 >= credential_subject_path.length) { // TODO: macro
+                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[needle_pos]))) {
+                    if (needle_pos + 1 >= CREDENTIAL_SUBJECT_PATH.length) { // TODO: macro
                         return pos;
                     }
                     else {
@@ -298,7 +298,7 @@ contract NZCP is EllipticCurve {
     function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint256[2] memory rs, bool is_example) public view 
         returns (string memory, string memory, string memory) {
 
-        uint credentialSubjectPos = findCredentialSubject(buffer, claims_skip, 0);
+        uint credentialSubjectPos = findCredentialSubject(buffer, CLAIMS_SKIP, 0);
 
         (string memory givenName, string memory familyName, string memory dob) = readCredentialSubject(buffer, credentialSubjectPos);
 
