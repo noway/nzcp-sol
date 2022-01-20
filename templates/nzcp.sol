@@ -263,8 +263,8 @@ contract NZCP is EllipticCurve {
         string memory familyName;
         string memory dob;
 
+        string memory key;
         for (uint i = 0; i < maplen; i++) {
-            string memory key;
             (pos, key) = readStringValue(buffer, pos);
 
             if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
