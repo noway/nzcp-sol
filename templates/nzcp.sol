@@ -9,8 +9,7 @@ import "./EllipticCurve.sol";
 // - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned.
 // - ToBeSigned is defined in https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
-
-// CBOR types
+/* CBOR types */
 #define MAJOR_TYPE_INT 0
 #define MAJOR_TYPE_NEGATIVE_INT 1
 #define MAJOR_TYPE_BYTES 2
@@ -20,38 +19,47 @@ import "./EllipticCurve.sol";
 #define MAJOR_TYPE_TAG 6
 #define MAJOR_TYPE_CONTENT_FREE 7
 
-// "key-1" public key published here:
-// https://nzcp.covid19.health.nz/.well-known/did.json
-// Does not suppose to change unless NZ MoH leaks their private key
+/*
+ "key-1" public key published here:
+ https://nzcp.covid19.health.nz/.well-known/did.json
+ Does not suppose to change unless NZ MoH leaks their private key
+*/
 #define EXAMPLE_X 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD
 #define EXAMPLE_Y 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D
 
-// "z12Kf7UQ" public key published here:
-// https://nzcp.identity.health.nz/.well-known/did.json
-// Does not suppose to change unless NZ MoH leaks their private key
+/* 
+ "z12Kf7UQ" public key published here:
+ https://nzcp.identity.health.nz/.well-known/did.json
+ Does not suppose to change unless NZ MoH leaks their private key
+*/
 #define LIVE_X 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7
 #define LIVE_Y 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662
 
-// 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSigned
-// And get to the CWT claims straight away
+/*
+ 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSigned
+ And get to the CWT claims straight away
+*/
 #define CLAIMS_SKIP 27
 
-// keccak256(abi.encodePacked("vc"))
+/* keccak256(abi.encodePacked("vc")) */
 #define vc_KECCAK256 0x6ec613b793842434591077d5267660b73eca3bb163edb2574938d0a1b9fed380
-// keccak256(abi.encodePacked("credentialSubject"))
+
+/* keccak256(abi.encodePacked("credentialSubject")) */
 #define credentialSubject_KECCAK256 0xf888b25396a7b641f052b4f483e19960c8cb98c3e8f094f00faf41fffd863fda
 
-// keccak256(abi.encodePacked("givenName"))
+/* keccak256(abi.encodePacked("givenName")) */
 #define givenName_KECCAK256 0xa3f2ad40900c663841a16aacd4bc622b021d6b2548767389f506dbe65673c3b9
-// keccak256(abi.encodePacked("familyName"))
+
+/* keccak256(abi.encodePacked("familyName")) */
 #define familyName_KECCAK256 0xd7aa1fd5ef0cc1f1e7ce8b149fdb61f373714ea1cc3ad47c597f4d3e554d10a4
-// keccak256(abi.encodePacked("dob"))
+
+/* keccak256(abi.encodePacked("dob")) */
 #define dob_KECCAK256 0x635ec02f32ae461b745f21d9409955a9b5a660b486d30e7b5d4bfda4a75dec80
 
-// Path to get to the credentialSubject map inside CWT claims
+/* Path to get to the credentialSubject map inside CWT claims */
 #define CREDENTIAL_SUBJECT_PATH [bytes32(vc_KECCAK256), bytes32(credentialSubject_KECCAK256)]
 
-// CREDENTIAL_SUBJECT_PATH.length - 1
+/* CREDENTIAL_SUBJECT_PATH.length - 1 */
 #define CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1 1
 
 error InvalidSignature();
@@ -91,15 +99,13 @@ contract NZCP is EllipticCurve {
             uint8 value = uint8(buffer[pos++]);
             return (pos, value);
         }
-        /*
         // Commented out to save gas
-        else if (x == 25) { // 16-bit
-            uint16 value;
-            value = uint16(uint8(buffer[pos++])) << 8;
-            value |= uint16(uint8(buffer[pos++]));
-            return (pos, value);
-        }
-        */
+        // else if (x == 25) { // 16-bit
+        //     uint16 value;
+        //     value = uint16(uint8(buffer[pos++])) << 8;
+        //     value |= uint16(uint8(buffer[pos++]));
+        //     return (pos, value);
+        // }
         else if (x == 26) { // 32-bit
             uint32 value;
             value = uint32(uint8(buffer[pos++])) << 24;
@@ -139,21 +145,17 @@ contract NZCP is EllipticCurve {
             (pos, value) = decodeUint(buffer, pos, v);
             return pos;
         }
-        /*
         // Commented out to save gas
-        else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
-            (pos, value) = decodeUint(buffer, pos, v);
-            return pos;
-        }
-        */
-        /*
+        // else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
+        //     (pos, value) = decodeUint(buffer, pos, v);
+        //     return pos;
+        // }
         // Commented out to save gas
-        else if (cbortype == MAJOR_TYPE_BYTES) {
-            (pos, value) = decodeUint(buffer, pos, v);
-            pos += value;
-            return pos;
-        }
-        */
+        // else if (cbortype == MAJOR_TYPE_BYTES) {
+        //     (pos, value) = decodeUint(buffer, pos, v);
+        //     pos += value;
+        //     return pos;
+        // }
         else if (cbortype == MAJOR_TYPE_STRING) {
             (pos, value) = decodeUint(buffer, pos, v);
             pos += value;
@@ -166,17 +168,15 @@ contract NZCP is EllipticCurve {
             }
             return pos;
         }
-        /*
         // Commented out to save gas
-        else if (cbortype == MAJOR_TYPE_MAP) {
-            (pos, value) = decodeUint(buffer, pos, v);
-            for (uint i = 0; i++ < value;) {
-                pos = skipValue(buffer, pos);
-                pos = skipValue(buffer, pos);
-            }
-            return pos;
-        }
-        */
+        // else if (cbortype == MAJOR_TYPE_MAP) {
+        //     (pos, value) = decodeUint(buffer, pos, v);
+        //     for (uint i = 0; i++ < value;) {
+        //         pos = skipValue(buffer, pos);
+        //         pos = skipValue(buffer, pos);
+        //     }
+        //     return pos;
+        // }
         else {
             revert UnexpectedCBORType();
         }
