@@ -36,8 +36,20 @@ import "./EllipticCurve.sol";
 // And get to the CWT claims straight away
 #define CLAIMS_SKIP 27
 
+// keccak256(abi.encodePacked("vc"))
+#define vc_KECCAK256 0x6ec613b793842434591077d5267660b73eca3bb163edb2574938d0a1b9fed380
+// keccak256(abi.encodePacked("credentialSubject"))
+#define credentialSubject_KECCAK256 0xf888b25396a7b641f052b4f483e19960c8cb98c3e8f094f00faf41fffd863fda
+
+// keccak256(abi.encodePacked("givenName"))
+#define givenName_KECCAK256 0xa3f2ad40900c663841a16aacd4bc622b021d6b2548767389f506dbe65673c3b9
+// keccak256(abi.encodePacked("familyName"))
+#define familyName_KECCAK256 0xd7aa1fd5ef0cc1f1e7ce8b149fdb61f373714ea1cc3ad47c597f4d3e554d10a4
+// keccak256(abi.encodePacked("dob"))
+#define dob_KECCAK256 0x635ec02f32ae461b745f21d9409955a9b5a660b486d30e7b5d4bfda4a75dec80
+
 // Path to get to the credentialSubject map inside CWT claims
-#define CREDENTIAL_SUBJECT_PATH ["vc", "credentialSubject"]
+#define CREDENTIAL_SUBJECT_PATH [bytes32(vc_KECCAK256), bytes32(credentialSubject_KECCAK256)]
 
 // CREDENTIAL_SUBJECT_PATH.length - 1
 #define CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1 1
@@ -233,7 +245,7 @@ contract NZCP is EllipticCurve {
 
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, strlen);
-                if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[pathindex]))) {
+                if (keccak256(abi.encodePacked(key)) == CREDENTIAL_SUBJECT_PATH[pathindex]) {
                     if (pathindex >= CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1) {
                         return pos;
                     }
@@ -263,13 +275,13 @@ contract NZCP is EllipticCurve {
         for (uint i = 0; i < maplen; i++) {
             (pos, key) = readStringValue(buffer, pos);
 
-            if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("givenName"))) {
+            if (keccak256(abi.encodePacked(key)) == givenName_KECCAK256) {
                 (pos, givenName) = readStringValue(buffer, pos);
             }
-            else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("familyName"))) {
+            else if (keccak256(abi.encodePacked(key)) == familyName_KECCAK256) {
                 (pos, familyName) = readStringValue(buffer, pos);
             }
-            else if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked("dob"))) {
+            else if (keccak256(abi.encodePacked(key)) == dob_KECCAK256) {
                 (pos, dob) = readStringValue(buffer, pos);
             }
             else {
