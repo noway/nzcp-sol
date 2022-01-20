@@ -1,2 +1,2 @@
-contracts/nzcp.sol: contracts/nzcp-pre.sol
+contracts/nzcp.sol: templates/nzcp.sol
 	cpp -P $< > $@
