@@ -223,13 +223,11 @@ contract NZCP is EllipticCurve {
                 uint key;
                 (pos, key) = decodeUint(buffer, pos, v);
                 if (key == 4) {
-                    uint v2;
-                    uint cbortype2;
-                    (pos, cbortype2, v2) = readType(buffer, pos);
-                    revert_if(cbortype2 != MAJOR_TYPE_INT, UnexpectedCBORType);
+                    (pos, cbortype, v) = readType(buffer, pos);
+                    revert_if(cbortype != MAJOR_TYPE_INT, UnexpectedCBORType);
 
                     uint exp;
-                    (pos, exp) = decodeUint(buffer, pos, v2);
+                    (pos, exp) = decodeUint(buffer, pos, v);
                      // check if pass expired
                     revert_if(block.timestamp >= exp, PassExpired);
                 }
