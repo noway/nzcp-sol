@@ -117,7 +117,6 @@ contract NZCP is EllipticCurve {
         else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
-            value = ~value; // TODO: not neccessary
             return pos;
         }
         else if (cbortype == MAJOR_TYPE_BYTES) {
