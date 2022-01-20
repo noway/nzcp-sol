@@ -39,7 +39,7 @@ import "./EllipticCurve.sol";
 // Path to get to the credentialSubject map inside CWT claims
 #define CREDENTIAL_SUBJECT_PATH ["vc", "credentialSubject"]
 
-// CREDENTIAL_SUBJECT_PATH.length
+// CREDENTIAL_SUBJECT_PATH.length - 1
 #define CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1 1
 
 contract NZCP is EllipticCurve {
@@ -284,7 +284,7 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    // Parses ToBeSigned and returns the credential subject
+    // Verifies signature, parses ToBeSigned and returns the credential subject
     // Returns credential subject if pass is valid, reverts transaction otherwise
     // https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
     function parseAndVerifyToBeSigned(bytes memory ToBeSigned, uint256[2] memory rs, bool isExample) public view 
