@@ -67,6 +67,7 @@ const NOT_ACTIVE_PASS = {
   s: "0x4DCA052720B9F581200BEBAC2FFF1AFA159CE42AEB38D558DF9413899DB48271"
 }
 
+/*
 describe("EC", function () {
   it("Should verify signature", async function () {
 
@@ -114,6 +115,7 @@ describe("EC", function () {
   })
 
 })
+*/
 
 describe("NZCP", function () {
   it("Should verify signature with NZCP example pubkey", async function () {
