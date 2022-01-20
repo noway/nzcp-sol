@@ -171,7 +171,6 @@ contract NZCP is EllipticCurve {
         }
     }
 
-    // TODO: make a macro
     function readType(bytes memory buffer, uint pos) private pure returns (uint, uint, uint) {
         uint v = uint8(buffer[pos]);
         pos++;
