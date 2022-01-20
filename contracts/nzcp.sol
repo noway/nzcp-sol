@@ -298,12 +298,10 @@ contract NZCP is EllipticCurve {
     function parseAndVerifyToBeSignedBuffer(bytes memory buffer, uint256[2] memory rs, bool is_example) public view 
         returns (string memory, string memory, string memory) {
 
-        uint credentialSubjectPos = findCredentialSubject(buffer, CLAIMS_SKIP, 0);
-
-        (string memory givenName, string memory familyName, string memory dob) = readCredentialSubject(buffer, credentialSubjectPos);
-
         verifySignature(sha256(buffer), rs, is_example);
 
-        return (givenName, familyName, dob);
+        uint credentialSubjectPos = findCredentialSubject(buffer, CLAIMS_SKIP, 0);
+
+        return readCredentialSubject(buffer, credentialSubjectPos);
     }
 }
