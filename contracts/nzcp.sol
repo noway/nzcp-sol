@@ -108,45 +108,40 @@ contract NZCP is EllipticCurve {
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
 
+        uint value;
         if (cbortype == MAJOR_TYPE_INT) {
-            uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
             return pos;
         }
         /*
         else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
-            uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
             return pos;
         }
         */
         /*
         else if (cbortype == MAJOR_TYPE_BYTES) {
-            uint len;
-            (pos, len) = decodeCBORUint(buffer, pos, v);
-            pos += len;
+            (pos, value) = decodeCBORUint(buffer, pos, v);
+            pos += value;
             return pos;
         }
         */
         else if (cbortype == MAJOR_TYPE_STRING) {
-            uint len;
-            (pos, len) = decodeCBORUint(buffer, pos, v);
-            pos += len;
+            (pos, value) = decodeCBORUint(buffer, pos, v);
+            pos += value;
             return pos;
         }
         else if (cbortype == MAJOR_TYPE_ARRAY) {
-            uint len;
-            (pos, len) = decodeCBORUint(buffer, pos, v);
-            for (uint i = 0; i < len; i++) {
+            (pos, value) = decodeCBORUint(buffer, pos, v);
+            for (uint i = 0; i < value; i++) {
                 pos = skipCBORValue(buffer, pos);
             }
             return pos;
         }
         /*
         else if (cbortype == MAJOR_TYPE_MAP) {
-            uint len;
-            (pos, len) = decodeCBORUint(buffer, pos, v);
-            for (uint i = 0; i < len; i++) {
+            (pos, value) = decodeCBORUint(buffer, pos, v);
+            for (uint i = 0; i < value; i++) {
                 pos = skipCBORValue(buffer, pos);
                 pos = skipCBORValue(buffer, pos);
             }
