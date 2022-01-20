@@ -24,13 +24,13 @@ contract NZCP is EllipticCurve {
 
     // "key-1" public key published here:
     // https://nzcp.covid19.health.nz/.well-known/did.json
-    // Doesn't suppose to change unless NZ MoH leaks their private key
+    // Does not suppose to change unless NZ MoH leaks their private key
     uint256 public constant EXAMPLE_X = 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD;
     uint256 public constant EXAMPLE_Y = 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D;
 
     // "z12Kf7UQ" public key published here:
     // https://nzcp.identity.health.nz/.well-known/did.json
-    // Doesn't suppose to change unless NZ MoH leaks their private key
+    // Does not suppose to change unless NZ MoH leaks their private key
     uint256 public constant LIVE_X = 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7;
     uint256 public constant LIVE_Y = 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662;
 
