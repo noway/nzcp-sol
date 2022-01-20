@@ -42,7 +42,7 @@ import "./EllipticCurve.sol";
 #define CREDENTIAL_SUBJECT_PATH ["vc", "credentialSubject"]
 
 // CREDENTIAL_SUBJECT_PATH.length
-#define CREDENTIAL_SUBJECT_PATH_LENGTH 2
+#define CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1 1
 
 contract NZCP is EllipticCurve {
 
@@ -238,7 +238,7 @@ contract NZCP is EllipticCurve {
                 string memory key;
                 (pos, key) = decodeString(buffer, pos, strlen);
                 if (keccak256(abi.encodePacked(key)) == keccak256(abi.encodePacked(CREDENTIAL_SUBJECT_PATH[path_index]))) {
-                    if (path_index + 1 >= CREDENTIAL_SUBJECT_PATH_LENGTH) {
+                    if (path_index >= CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1) {
                         return pos;
                     }
                     else {
