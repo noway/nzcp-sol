@@ -59,7 +59,7 @@ error PassExpired();
 error UnexpectedCBORType();
 error UnsupportedCBORUint();
 
-#define require_r(a, b) if (!(a)) revert b()
+#define revert_if(a, b) if (a) revert b()
 
 contract NZCP is EllipticCurve {
 
@@ -192,7 +192,7 @@ contract NZCP is EllipticCurve {
         uint v;
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
-        require_r(cbortype == MAJOR_TYPE_STRING, UnexpectedCBORType);
+        revert_if(cbortype != MAJOR_TYPE_STRING, UnexpectedCBORType);
         uint valuelen;
         (pos, valuelen) = decodeUint(buffer, pos, v);
         return decodeString(buffer, pos, valuelen);
@@ -202,7 +202,7 @@ contract NZCP is EllipticCurve {
         uint v;
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
-        require_r(cbortype == MAJOR_TYPE_MAP, UnexpectedCBORType);
+        revert_if(cbortype != MAJOR_TYPE_MAP, UnexpectedCBORType);
         uint maplen;
         (pos, maplen) = decodeUint(buffer, pos, v);
         return (pos, maplen);
@@ -226,12 +226,12 @@ contract NZCP is EllipticCurve {
                     uint v2;
                     uint cbortype2;
                     (pos, cbortype2, v2) = readType(buffer, pos);
-                    require_r(cbortype2 == MAJOR_TYPE_INT, UnexpectedCBORType);
+                    revert_if(cbortype2 != MAJOR_TYPE_INT, UnexpectedCBORType);
 
                     uint exp;
                     (pos, exp) = decodeUint(buffer, pos, v2);
                      // check if pass expired
-                    require_r(block.timestamp < exp, PassExpired);
+                    revert_if(block.timestamp >= exp, PassExpired);
                 }
                 // We do not check for whether pass is active, since we assume
                 // That the NZ MoH only issues active passes
@@ -295,11 +295,11 @@ contract NZCP is EllipticCurve {
     // Returns true if signature is valid, reverts transaction otherwise
     function verifySign(bytes32 messageHash, uint256[2] memory rs, bool isExample) public pure returns (bool) {
         if (isExample) {
-            require_r(validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), InvalidSignature);
+            revert_if(!validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), InvalidSignature);
             return true;
         }
         else {
-            require_r(validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]),  InvalidSignature);
+            revert_if(!validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]),  InvalidSignature);
             return true;
         }
     }
