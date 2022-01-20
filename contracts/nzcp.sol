@@ -107,24 +107,27 @@ contract NZCP is EllipticCurve {
         uint v;
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
-        // TODO: remove unused branches
 
         if (cbortype == MAJOR_TYPE_INT) {
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
             return pos;
         }
+        /*
         else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
             uint value;
             (pos, value) = decodeCBORUint(buffer, pos, v);
             return pos;
         }
+        */
+        /*
         else if (cbortype == MAJOR_TYPE_BYTES) {
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
             pos += len;
             return pos;
         }
+        */
         else if (cbortype == MAJOR_TYPE_STRING) {
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
@@ -139,8 +142,8 @@ contract NZCP is EllipticCurve {
             }
             return pos;
         }
+        /*
         else if (cbortype == MAJOR_TYPE_MAP) {
-            // TODO: not tested
             uint len;
             (pos, len) = decodeCBORUint(buffer, pos, v);
             for (uint i = 0; i < len; i++) {
@@ -149,6 +152,7 @@ contract NZCP is EllipticCurve {
             }
             return pos;
         }
+        */
         else {
             require(false, "this cbortype is not supported");
         }
