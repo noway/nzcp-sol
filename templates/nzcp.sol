@@ -9,41 +9,42 @@ import "./EllipticCurve.sol";
 // - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned.
 // - ToBeSigned is defined in https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
+
+// CBOR types
+// TODO: make a macro
+#define MAJOR_TYPE_INT 0
+#define MAJOR_TYPE_NEGATIVE_INT 1
+#define MAJOR_TYPE_BYTES 2
+#define MAJOR_TYPE_STRING 3
+#define MAJOR_TYPE_ARRAY 4
+#define MAJOR_TYPE_MAP 5
+#define MAJOR_TYPE_TAG 6
+#define MAJOR_TYPE_CONTENT_FREE 7
+
+// "key-1" public key published here:
+// https://nzcp.covid19.health.nz/.well-known/did.json
+// Does not suppose to change unless NZ MoH leaks their private key
+#define EXAMPLE_X 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD
+#define EXAMPLE_Y 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D
+
+// "z12Kf7UQ" public key published here:
+// https://nzcp.identity.health.nz/.well-known/did.json
+// Does not suppose to change unless NZ MoH leaks their private key
+#define LIVE_X 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7
+#define LIVE_Y 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662
+
+// 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSigned
+// And get to the CWT claims straight away
+#define CLAIMS_SKIP 27
+
+// Path to get to the credentialSubject map inside CWT claims
+// TODO: constant or a macro
+#define CREDENTIAL_SUBJECT_PATH ["vc", "credentialSubject"]
+
 contract NZCP is EllipticCurve {
 
-    // CBOR types
-    // TODO: make a macro
-    uint private constant MAJOR_TYPE_INT = 0;
-    uint private constant MAJOR_TYPE_NEGATIVE_INT = 1;
-    uint private constant MAJOR_TYPE_BYTES = 2;
-    uint private constant MAJOR_TYPE_STRING = 3;
-    uint private constant MAJOR_TYPE_ARRAY = 4;
-    uint private constant MAJOR_TYPE_MAP = 5;
-    uint private constant MAJOR_TYPE_TAG = 6;
-    uint private constant MAJOR_TYPE_CONTENT_FREE = 7;
-
-    // "key-1" public key published here:
-    // https://nzcp.covid19.health.nz/.well-known/did.json
-    // Does not suppose to change unless NZ MoH leaks their private key
-    uint256 public constant EXAMPLE_X = 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD;
-    uint256 public constant EXAMPLE_Y = 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D;
-
-    // "z12Kf7UQ" public key published here:
-    // https://nzcp.identity.health.nz/.well-known/did.json
-    // Does not suppose to change unless NZ MoH leaks their private key
-    uint256 public constant LIVE_X = 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7;
-    uint256 public constant LIVE_Y = 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662;
-
-    // 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSigned
-    // And get to the CWT claims straight away
-    uint private constant CLAIMS_SKIP = 27; // TODO: make a macro macro
-    
-    // Path to get to the credentialSubject map inside CWT claims
-    // TODO: constant or a macro
-    string[] private CREDENTIAL_SUBJECT_PATH = ["vc", "credentialSubject"];
 
     // CREDENTIAL_SUBJECT_PATH.length
-    // TODO: macro
     uint private constant CREDENTIAL_SUBJECT_PATH_LENGTH = 2;
 
     function memcpy(uint dest, uint src, uint len) private pure {
