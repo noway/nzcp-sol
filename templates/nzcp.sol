@@ -219,10 +219,10 @@ contract NZCP is EllipticCurve {
             uint cbortype;
             (pos, cbortype, v) = readType(buffer, pos);
 
+            uint value;
+            (pos, value) = decodeUint(buffer, pos, v);
             if (cbortype == MAJOR_TYPE_INT) {
-                uint key;
-                (pos, key) = decodeUint(buffer, pos, v);
-                if (key == 4) {
+                if (value == 4) {
                     (pos, cbortype, v) = readType(buffer, pos);
                     revert_if(cbortype != MAJOR_TYPE_INT, UnexpectedCBORType);
 
@@ -238,11 +238,9 @@ contract NZCP is EllipticCurve {
                 }
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
-                uint strlen;
-                (pos, strlen) = decodeUint(buffer, pos, v);
-
                 string memory key;
-                (pos, key) = decodeString(buffer, pos, strlen);
+                (pos, key) = decodeString(buffer, pos, value);
+
                 if (keccak256(abi.encodePacked(key)) == CREDENTIAL_SUBJECT_PATH[pathindex]) {
                     if (pathindex >= CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1) {
                         return pos;
