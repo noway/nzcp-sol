@@ -114,12 +114,14 @@ contract NZCP is EllipticCurve {
             return pos;
         }
         /*
+        // Commented out to save gas
         else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
             (pos, value) = decodeCBORUint(buffer, pos, v);
             return pos;
         }
         */
         /*
+        // Commented out to save gas
         else if (cbortype == MAJOR_TYPE_BYTES) {
             (pos, value) = decodeCBORUint(buffer, pos, v);
             pos += value;
@@ -139,6 +141,7 @@ contract NZCP is EllipticCurve {
             return pos;
         }
         /*
+        // Commented out to save gas
         else if (cbortype == MAJOR_TYPE_MAP) {
             (pos, value) = decodeCBORUint(buffer, pos, v);
             for (uint i = 0; i < value; i++) {
