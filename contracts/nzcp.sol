@@ -75,7 +75,17 @@ contract NZCP is EllipticCurve {
             pos++;
             return (pos, value);
         }
-        // TODO: handle 25
+        /*
+        // Commented out to save gas
+        else if (x == 25) { // 16-bit
+            uint16 value;
+            value = uint16(uint8(buffer[pos])) << 8;
+            pos++;
+            value |= uint16(uint8(buffer[pos]));
+            pos++;
+            return (pos, value);
+        }
+        */
         else if (x == 26) { // 32-bit
             uint32 value;
             value = uint32(uint8(buffer[pos])) << 24;
