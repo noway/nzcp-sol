@@ -273,7 +273,7 @@ contract NZCP is EllipticCurve {
 
     // Verifies NZCP message hash signature
     // Returns true if signature is valid, reverts transaction otherwise
-    function verifySignature(bytes32 messageHash, uint256[2] memory rs, bool isExample) public pure returns (bool) {
+    function verifySign(bytes32 messageHash, uint256[2] memory rs, bool isExample) public pure returns (bool) {
         if (isExample) {
             require(validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), "Invalid signature");
             return true;
@@ -287,10 +287,10 @@ contract NZCP is EllipticCurve {
     // Verifies signature, parses ToBeSigned and returns the credential subject
     // Returns credential subject if pass is valid, reverts transaction otherwise
     // https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
-    function parseAndVerifyToBeSigned(bytes memory ToBeSigned, uint256[2] memory rs, bool isExample) public view 
+    function readCredSubj(bytes memory ToBeSigned, uint256[2] memory rs, bool isExample) public view 
         returns (string memory, string memory, string memory) {
 
-        verifySignature(sha256(ToBeSigned), rs, isExample);
+        verifySign(sha256(ToBeSigned), rs, isExample);
 
         uint credentialSubjectPos = findCredentialSubject(ToBeSigned, CLAIMS_SKIP, 0);
 

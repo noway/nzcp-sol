@@ -122,13 +122,13 @@ describe("NZCP", function () {
     const messageHash = "0x271CE33D671A2D3B816D788135F4343E14BC66802F8CD841FAAC939E8C11F3EE";
     const r = "0xD2E07B1DD7263D833166BDBB4F1A093837A905D7ECA2EE836B6B2ADA23C23154";
     const s = "0xFBA88A529F675D6686EE632B09EC581AB08F72B458904BB3396D10FA66D11477";
-    expect(await nzcp.verifySignature(messageHash, [r, s], 1)).to.equal(true);
+    expect(await nzcp.verifySign(messageHash, [r, s], 1)).to.equal(true);
 
   })
 
   it("Should parse credential subject in ToBeSigned", async function () {
     const nzcp = await setupNZCP()
-    const result = await nzcp.parseAndVerifyToBeSigned(
+    const result = await nzcp.readCredSubj(
       EXAMPLE_PASS.ToBeSigned, [EXAMPLE_PASS.r, EXAMPLE_PASS.s], 1)
     const JackSparrow = ["Jack", "Sparrow", "1960-04-16"];
     expect(result).to.deep.equal(JackSparrow);
@@ -137,14 +137,14 @@ describe("NZCP", function () {
   it("Should fail BAD_PUBLIC_KEY_PASS", async function () {
     const nzcp = await setupNZCP();
     expect(
-      nzcp.parseAndVerifyToBeSigned(
+      nzcp.readCredSubj(
         BAD_PUBLIC_KEY_PASS.ToBeSigned, [BAD_PUBLIC_KEY_PASS.r, BAD_PUBLIC_KEY_PASS.s], 1)
     ).to.be.revertedWith("Invalid signature");
   });
 
   it("Should parse PUBLIC_KEY_NOT_FOUND_PASS while violating spec", async function () {
     const nzcp = await setupNZCP();
-    const result = await nzcp.parseAndVerifyToBeSigned(
+    const result = await nzcp.readCredSubj(
       PUBLIC_KEY_NOT_FOUND_PASS.ToBeSigned, [PUBLIC_KEY_NOT_FOUND_PASS.r, PUBLIC_KEY_NOT_FOUND_PASS.s], 1);
     const JackSparrow = ["Jack", "Sparrow", "1960-04-16"];
     // We're deviating from the spec here, since Ministry of Health is not going to issue passes with mismatching kid.
@@ -154,7 +154,7 @@ describe("NZCP", function () {
   it("Should fail MODIFIED_SIGNATURE_PASS", async function () {
     const nzcp = await setupNZCP();
     expect(
-      nzcp.parseAndVerifyToBeSigned(
+      nzcp.readCredSubj(
         MODIFIED_SIGNATURE_PASS.ToBeSigned, [MODIFIED_SIGNATURE_PASS.r, MODIFIED_SIGNATURE_PASS.s], 1)
     ).to.be.revertedWith("Invalid signature");
   });
@@ -162,7 +162,7 @@ describe("NZCP", function () {
   it("Should fail MODIFIED_PAYLOAD_PASS", async function () {
     const nzcp = await setupNZCP();
     expect(
-      nzcp.parseAndVerifyToBeSigned(
+      nzcp.readCredSubj(
         MODIFIED_PAYLOAD_PASS.ToBeSigned, [MODIFIED_PAYLOAD_PASS.r, MODIFIED_PAYLOAD_PASS.s], 1)
     ).to.be.revertedWith("Invalid signature");
   });
@@ -170,14 +170,14 @@ describe("NZCP", function () {
   it("Should fail EXPIRED_PASS", async function () {
     const nzcp = await setupNZCP();
     expect(
-      nzcp.parseAndVerifyToBeSigned(
+      nzcp.readCredSubj(
         EXPIRED_PASS.ToBeSigned, [EXPIRED_PASS.r, EXPIRED_PASS.s], 1)
     ).to.be.revertedWith("Pass expired");
   });
 
   it("Should parse NOT_ACTIVE_PASS while violating spec", async function () {
     const nzcp = await setupNZCP();
-    const result = await nzcp.parseAndVerifyToBeSigned(
+    const result = await nzcp.readCredSubj(
       NOT_ACTIVE_PASS.ToBeSigned, [NOT_ACTIVE_PASS.r, NOT_ACTIVE_PASS.s], 1);
     const JackSparrow = ["Jack", "Sparrow", "1960-04-16"];
     // Deviating from spec again, since Ministry of Health is not going to issue passes which are not yet active.
