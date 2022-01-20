@@ -42,6 +42,13 @@ import "./EllipticCurve.sol";
 // CREDENTIAL_SUBJECT_PATH.length - 1
 #define CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1 1
 
+error InvalidSignature();
+error PassExpired();
+error UnexpectedCBORType();
+error UnsupportedCBORUint();
+
+#define require_r(a, b) if (!(a)) revert b()
+
 contract NZCP is EllipticCurve {
 
     function memcpy(uint dest, uint src, uint len) private pure {
@@ -90,7 +97,7 @@ contract NZCP is EllipticCurve {
             return (pos, value);
         }
         else {
-            require(false, "x is not in supported range");
+            require_r(false, UnsupportedCBORUint);
         }
     }
 
@@ -160,7 +167,7 @@ contract NZCP is EllipticCurve {
         }
         */
         else {
-            require(false, "this cbortype is not supported");
+            require_r(false, UnexpectedCBORType);
         }
     }
 
@@ -173,7 +180,7 @@ contract NZCP is EllipticCurve {
         uint v;
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
-        require(cbortype == MAJOR_TYPE_STRING, "cbortype expected to be string");
+        require_r(cbortype == MAJOR_TYPE_STRING, UnexpectedCBORType);
         uint valuelen;
         (pos, valuelen) = decodeUint(buffer, pos, v);
         return decodeString(buffer, pos, valuelen);
@@ -183,7 +190,7 @@ contract NZCP is EllipticCurve {
         uint v;
         uint cbortype;
         (pos, cbortype, v) = readType(buffer, pos);
-        require(cbortype == MAJOR_TYPE_MAP, "cbortype expected to be map");
+        require_r(cbortype == MAJOR_TYPE_MAP, UnexpectedCBORType);
         uint maplen;
         (pos, maplen) = decodeUint(buffer, pos, v);
         return (pos, maplen);
@@ -207,11 +214,12 @@ contract NZCP is EllipticCurve {
                     uint v2;
                     uint cbortype2;
                     (pos, cbortype2, v2) = readType(buffer, pos);
-                    require(cbortype2 == MAJOR_TYPE_INT, "cbortype expected to be integer");
+                    require_r(cbortype2 == MAJOR_TYPE_INT, UnexpectedCBORType);
 
                     uint exp;
                     (pos, exp) = decodeUint(buffer, pos, v2);
-                    require(block.timestamp < exp, "Pass expired"); // check if pass expired
+                     // check if pass expired
+                    require_r(block.timestamp < exp, PassExpired);
                 }
                 // We do not check for whether pass is active, since we assume
                 // That the NZ MoH only issues active passes
@@ -238,7 +246,7 @@ contract NZCP is EllipticCurve {
                 }
             }
             else {
-                require(false, "map key is of an supported type");
+                require_r(false, UnexpectedCBORType);
             }
         }
     }
@@ -275,11 +283,11 @@ contract NZCP is EllipticCurve {
     // Returns true if signature is valid, reverts transaction otherwise
     function verifySign(bytes32 messageHash, uint256[2] memory rs, bool isExample) public pure returns (bool) {
         if (isExample) {
-            require(validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), "Invalid signature");
+            require_r(validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), InvalidSignature);
             return true;
         }
         else {
-            require(validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]),  "Invalid signature");
+            require_r(validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]),  InvalidSignature);
             return true;
         }
     }

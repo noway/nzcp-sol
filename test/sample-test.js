@@ -139,7 +139,7 @@ describe("NZCP", function () {
     expect(
       nzcp.readCredSubj(
         BAD_PUBLIC_KEY_PASS.ToBeSigned, [BAD_PUBLIC_KEY_PASS.r, BAD_PUBLIC_KEY_PASS.s], 1)
-    ).to.be.revertedWith("Invalid signature");
+    ).to.be.revertedWith("InvalidSignature()");
   });
 
   it("Should parse PUBLIC_KEY_NOT_FOUND_PASS while violating spec", async function () {
@@ -156,7 +156,7 @@ describe("NZCP", function () {
     expect(
       nzcp.readCredSubj(
         MODIFIED_SIGNATURE_PASS.ToBeSigned, [MODIFIED_SIGNATURE_PASS.r, MODIFIED_SIGNATURE_PASS.s], 1)
-    ).to.be.revertedWith("Invalid signature");
+    ).to.be.revertedWith("InvalidSignature()");
   });
 
   it("Should fail MODIFIED_PAYLOAD_PASS", async function () {
@@ -164,7 +164,7 @@ describe("NZCP", function () {
     expect(
       nzcp.readCredSubj(
         MODIFIED_PAYLOAD_PASS.ToBeSigned, [MODIFIED_PAYLOAD_PASS.r, MODIFIED_PAYLOAD_PASS.s], 1)
-    ).to.be.revertedWith("Invalid signature");
+    ).to.be.revertedWith("InvalidSignature()");
   });
 
   it("Should fail EXPIRED_PASS", async function () {
@@ -172,7 +172,7 @@ describe("NZCP", function () {
     expect(
       nzcp.readCredSubj(
         EXPIRED_PASS.ToBeSigned, [EXPIRED_PASS.r, EXPIRED_PASS.s], 1)
-    ).to.be.revertedWith("Pass expired");
+    ).to.be.revertedWith("PassExpired()");
   });
 
   it("Should parse NOT_ACTIVE_PASS while violating spec", async function () {
