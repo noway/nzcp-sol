@@ -1,6 +1,5 @@
 pragma solidity ^0.8.11;
 
-import "hardhat/console.sol";
 import "./EllipticCurve.sol";
 
 // NZCP implementation in Solidity
