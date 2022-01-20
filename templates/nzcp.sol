@@ -11,7 +11,6 @@ import "./EllipticCurve.sol";
 
 
 // CBOR types
-// TODO: make a macro
 #define MAJOR_TYPE_INT 0
 #define MAJOR_TYPE_NEGATIVE_INT 1
 #define MAJOR_TYPE_BYTES 2
@@ -38,7 +37,6 @@ import "./EllipticCurve.sol";
 #define CLAIMS_SKIP 27
 
 // Path to get to the credentialSubject map inside CWT claims
-// TODO: constant or a macro
 #define CREDENTIAL_SUBJECT_PATH ["vc", "credentialSubject"]
 
 // CREDENTIAL_SUBJECT_PATH.length
