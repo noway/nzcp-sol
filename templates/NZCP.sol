@@ -5,7 +5,7 @@ import "./EllipticCurve.sol";
 import "./UtilStrings.sol";
 
 /// @dev This contract is compiled from a template file.
-/// You can see the full template at https://github.com/noway/nzcp-sol/blob/main/templates/nzcp.sol
+/// You can see the full template at https://github.com/noway/nzcp-sol/blob/main/templates/NZCP.sol
 /// 
 /// @title NZCP.sol
 /// @author noway421.eth
