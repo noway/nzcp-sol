@@ -59,10 +59,16 @@ import "./Strings.sol";
 
 error InvalidSignature();
 error PassExpired();
-error UnexpectedCBORType();
-error UnsupportedCBORUint();
+// error UnexpectedCBORType();
+// error UnsupportedCBORUint();
 
+// Hard revert transaction
 #define revert_if(a, b) if (a) revert b()
+
+// Soft revert transation is actually a no-op
+// This is for things we assume that NZ Ministry of Health never going to sign, i.e. any malformed CBOR
+#define soft_revert_if(a, b) // if (a) revert b()
+#define soft_revert // revert
 
 /// @title NZCP
 /// @author noway421.eth
@@ -104,7 +110,7 @@ contract NZCP is EllipticCurve, Strings {
             return value;
         }
         else {
-            revert UnsupportedCBORUint();
+            soft_revert UnsupportedCBORUint();
         }
     }
 
@@ -163,7 +169,7 @@ contract NZCP is EllipticCurve, Strings {
         //     }
         // }
         else {
-            revert UnexpectedCBORType();
+            soft_revert UnexpectedCBORType();
         }
     }
 
@@ -174,7 +180,7 @@ contract NZCP is EllipticCurve, Strings {
 
     function readStringValue(Stream memory stream) private pure returns (string memory) {
         (uint value, uint v) = readType(stream);
-        revert_if(value != MAJOR_TYPE_STRING, UnexpectedCBORType);
+        soft_revert_if(value != MAJOR_TYPE_STRING, UnexpectedCBORType);
         value = decodeUint(stream, v);
         string memory str = decodeString(stream, value);
         return str;
@@ -182,7 +188,7 @@ contract NZCP is EllipticCurve, Strings {
 
     function readMapLength(Stream memory stream) private pure returns (uint) {
         (uint value, uint v) = readType(stream);
-        revert_if(value != MAJOR_TYPE_MAP, UnexpectedCBORType);
+        soft_revert_if(value != MAJOR_TYPE_MAP, UnexpectedCBORType);
         value = decodeUint(stream, v);
         return value;
     }
@@ -199,7 +205,7 @@ contract NZCP is EllipticCurve, Strings {
             if (cbortype == MAJOR_TYPE_INT) {
                 if (value == 4) {
                     (cbortype, v) = readType(stream);
-                    revert_if(cbortype != MAJOR_TYPE_INT, UnexpectedCBORType);
+                    soft_revert_if(cbortype != MAJOR_TYPE_INT, UnexpectedCBORType);
 
                      // check if pass expired
                     revert_if(block.timestamp >= decodeUint(stream, v), PassExpired);
@@ -226,7 +232,7 @@ contract NZCP is EllipticCurve, Strings {
                 }
             }
             else {
-                revert UnexpectedCBORType();
+                soft_revert UnexpectedCBORType();
             }
         }
     }
