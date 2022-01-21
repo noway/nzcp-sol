@@ -3,6 +3,27 @@ pragma solidity ^0.8.11;
 import "./EllipticCurve.sol";
 import "./Strings.sol";
 
+/// @dev This contract is compiled from a template file.
+/// You can see the full template at https://github.com/noway/nzcp-sol/blob/main/templates/nzcp.sol
+/// 
+/// @title NZCP.sol
+/// @author noway421.eth
+/// @notice New Zealand COVID Pass verifier implementation in Solidity
+///
+/// Features:
+/// - Verifies NZCP pass and returns the credential subject (givenName, familyName, dob)
+/// - Reverts transaction if pass is invalid.
+/// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned value.
+///    * ToBeSigned value is enough to cryptographically prove that the pass is valid.
+///    * The definition of ToBeSigned can be found here: https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
+///
+/// Assumptions:
+/// - NZ Ministry of Health never going to sign any malformed CBOR
+///    * This assumption relies on internal implementation of https://mycovidrecord.nz
+/// - NZ Ministry of Health never going to sign any pass that is not active
+///    * This assumption relies on internal implementation of https://mycovidrecord.nz
+/// - NZ Ministry of Health never going to change the private-public key pair used to sign the pass
+///    * This assumption relies on trusting NZ Ministry of Health not to leak their private key
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
@@ -17,7 +38,7 @@ import "./Strings.sol";
 /*
  "key-1" public key published here:
  https://nzcp.covid19.health.nz/.well-known/did.json
- Does not suppose to change unless NZ MoH leaks their private key
+ Does not suppose to change unless NZ Ministry of Health leaks their private key
 */
 #define EXAMPLE_X 0xCD147E5C6B02A75D95BDB82E8B80C3E8EE9CAA685F3EE5CC862D4EC4F97CEFAD
 #define EXAMPLE_Y 0x22FE5253A16E5BE4D1621E7F18EAC995C57F82917F1A9150842383F0B4A4DD3D
@@ -25,7 +46,7 @@ import "./Strings.sol";
 /* 
  "z12Kf7UQ" public key published here:
  https://nzcp.identity.health.nz/.well-known/did.json
- Does not suppose to change unless NZ MoH leaks their private key
+ Does not suppose to change unless NZ Ministry of Health leaks their private key
 */
 #define LIVE_X 0x0D008A26EB2A32C4F4BBB0A3A66863546907967DC0DDF4BE6B2787E0DBB9DAD7
 #define LIVE_Y 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662
@@ -57,34 +78,57 @@ import "./Strings.sol";
 /* CREDENTIAL_SUBJECT_PATH.length - 1 */
 #define CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1 1
 
-error InvalidSignature();
-error PassExpired();
-// error UnexpectedCBORType();
-// error UnsupportedCBORUint();
 
-// Hard revert transaction
+/* Hard revert transaction */
 #define revert_if(a, b) if (a) revert b()
 
-// Soft revert transation is actually a no-op
-// This is for things we assume that NZ Ministry of Health never going to sign, i.e. any malformed CBOR
-#define soft_revert_if(a, b) // if (a) revert b()
-#define soft_revert // revert
+/* 
+ Soft revert transation is actually a no-op
+ This is for things we assume that NZ Ministry of Health never going to sign, i.e. any malformed CBOR
+*/
+#define soft_revert_if(a, b) \
+    // this revert is not necessary \
+    // if (a) revert b()
+#define soft_revert // this revert is not necessary \
+    // revert
 
-/// @title NZCP
-/// @author noway421.eth
-/// @notice New Zealand COVID Pass verifier implementation in Solidity
-/// - Verifies NZCP pass and returns the credential subject (givenName, familyName, dob)
-/// - Reverts transaction if pass is invalid.
-/// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned value.
-/// - The definition of ToBeSigned can be found here: https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
-
+/// @dev Start of the NZCP contract
 contract NZCP is EllipticCurve, Strings {
 
+
+    /// -----------------------------------------------------------------------
+    /// Errors
+    /// -----------------------------------------------------------------------
+
+
+    error InvalidSignature();
+    error PassExpired();
+    // error UnexpectedCBORType();
+    // error UnsupportedCBORUint();
+
+
+    /// -----------------------------------------------------------------------
+    /// Structs
+    /// -----------------------------------------------------------------------
+
+
+    /// @dev A combination of buffer and position in that buffer
+    /// So that we can easily seek it and find the right items
     struct Stream {
         bytes buffer;
         uint pos;
     }
 
+
+    /// -----------------------------------------------------------------------
+    /// Private CBOR functions
+    /// -----------------------------------------------------------------------
+
+
+    /// @dev Decode an unsigned integer from the stream
+    /// @param stream The stream to decode from
+    /// @param v The v value
+    /// @return The decoded unsigned integer
     function decodeUint(Stream memory stream, uint v) private pure returns (uint) {
         uint x = v & 31;
         if (x <= 23) {
@@ -113,6 +157,10 @@ contract NZCP is EllipticCurve, Strings {
         }
     }
 
+    /// @dev Decode a string from the stream given stream and string length
+    /// @param stream The stream to decode from
+    /// @param len The length of the string
+    /// @return The decoded string
     function decodeString(Stream memory stream, uint len) private pure returns (string memory) {
         string memory str = new string(len);
 
@@ -133,6 +181,8 @@ contract NZCP is EllipticCurve, Strings {
         return str;
     }
 
+    /// @dev Skip a CBOR value from the stream
+    /// @param stream The stream to decode from
     function skipValue(Stream memory stream) private pure {
         (uint cbortype, uint v) = readType(stream);
 
@@ -172,11 +222,17 @@ contract NZCP is EllipticCurve, Strings {
         }
     }
 
+    /// @dev Read the CBOR type from the stream
+    /// @param stream The stream to decode from
+    /// @return The CBOR type and the v value
     function readType(Stream memory stream) private pure returns (uint, uint) {
         uint v = uint8(stream.buffer[stream.pos++]);
         return (v >> 5, v);
     }
 
+    /// @dev Read a CBOR string from the stream
+    /// @param stream The stream to decode from
+    /// @return The decoded string
     function readStringValue(Stream memory stream) private pure returns (string memory) {
         (uint value, uint v) = readType(stream);
         soft_revert_if(value != MAJOR_TYPE_STRING, UnexpectedCBORType);
@@ -185,6 +241,9 @@ contract NZCP is EllipticCurve, Strings {
         return str;
     }
 
+    /// @dev Read a CBOR map length from the stream
+    /// @param stream The stream to decode from
+    /// @return The decoded map length
     function readMapLength(Stream memory stream) private pure returns (uint) {
         (uint value, uint v) = readType(stream);
         soft_revert_if(value != MAJOR_TYPE_MAP, UnexpectedCBORType);
@@ -192,8 +251,16 @@ contract NZCP is EllipticCurve, Strings {
         return value;
     }
 
-    // Recursively searches the position of credential subject in the CWT claims
-    // Side effects: reverts transaction if pass is expired.
+
+    /// -----------------------------------------------------------------------
+    /// Private CWT functions
+    /// -----------------------------------------------------------------------
+
+
+    /// @dev Recursively search the position of credential subject in the CWT claims
+    /// @param stream The stream to decode from
+    /// @param pathindex The index of the credential subject path in the CWT claims tree
+    /// @notice Side effects: reverts transaction if pass is expired.
     function findCredSubj(Stream memory stream, uint pathindex) private view {
         uint maplen = readMapLength(stream);
 
@@ -206,13 +273,13 @@ contract NZCP is EllipticCurve, Strings {
                     (cbortype, v) = readType(stream);
                     soft_revert_if(cbortype != MAJOR_TYPE_INT, UnexpectedCBORType);
 
-                     // check if pass expired
+                    // check if pass expired
                     revert_if(block.timestamp >= decodeUint(stream, v), PassExpired);
                 }
                 // We do not check for whether pass is active, since we assume
-                // That the NZ MoH only issues active passes
+                // That the NZ Ministry of Health only issues active passes
                 else {
-                    skipValue(stream); // skip value
+                    skipValue(stream);
                 }
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
@@ -225,7 +292,7 @@ contract NZCP is EllipticCurve, Strings {
                     }
                 }
                 else {
-                    skipValue(stream); // skip value
+                    skipValue(stream);
                 }
             }
             else {
@@ -234,6 +301,9 @@ contract NZCP is EllipticCurve, Strings {
         }
     }
 
+    /// @dev Decode credential subject from the stream
+    /// @param stream The stream to decode from
+    /// @return The decoded credential subject (givenName, familyName, dob)
     function decodeCredSubj(Stream memory stream) private pure returns (string memory, string memory, string memory) {
         uint maplen = readMapLength(stream);
 
@@ -255,14 +325,23 @@ contract NZCP is EllipticCurve, Strings {
                 dob = readStringValue(stream);
             }
             else {
-                skipValue(stream); // skip value
+                skipValue(stream);
             }
         }
         return (givenName, familyName, dob);
     }
 
-    // Verifies NZCP message hash signature
-    // Returns true if signature is valid, reverts transaction otherwise
+
+    /// -----------------------------------------------------------------------
+    /// Public contract functions
+    /// -----------------------------------------------------------------------
+
+
+    /// @dev Verify the signature of the message hash of the ToBeSigned value of an NZCP pass
+    /// @param messageHash The message hash of ToBeSigned value
+    /// @param rs The r and s values of the signature
+    /// @param isExample Is this an example or a live pass
+    /// @return True if the signature is valid, reverts transaction otherwise
     function verifySign(bytes32 messageHash, uint256[2] memory rs, bool isExample) public pure returns (bool) {
         if (isExample) {
             revert_if(!validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), InvalidSignature);
@@ -274,15 +353,18 @@ contract NZCP is EllipticCurve, Strings {
         }
     }
 
-    // Verifies signature, parses ToBeSigned and returns the credential subject
-    // Returns credential subject if pass is valid, reverts transaction otherwise
-    // https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
+    /// @dev Verifies the signature, parses the ToBeSigned value and returns the credential subject of an NZCP pass
+    /// @param ToBeSigned The ToBeSigned value as per https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
+    /// @param rs The r and s values of the signature
+    /// @param isExample Is this an example or a live pass
+    /// @return credential subject (givenName, familyName, dob) if pass is valid, reverts transaction otherwise
     function readCredSubj(bytes memory ToBeSigned, uint256[2] memory rs, bool isExample) public view 
         returns (string memory, string memory, string memory) {
 
         verifySign(sha256(ToBeSigned), rs, isExample);
 
         Stream memory stream = Stream(ToBeSigned, CLAIMS_SKIP); 
+
         findCredSubj(stream, 0);
         return decodeCredSubj(stream);
     }
