@@ -75,15 +75,19 @@ error UnsupportedCBORUint();
 // TODO: try other hashing funcs
 contract NZCP is EllipticCurve, Strings {
 
+    struct Stream {
+        bytes buffer;
+        uint pos;
+    }
 
-    function decodeUint(bytes memory buffer, uint pos, uint v) private pure returns (uint, uint) {
+    function decodeUint(Stream memory stream, uint v) private pure returns (uint) {
         uint x = v & 31;
         if (x <= 23) {
-            return (pos, x);
+            return x;
         }
         else if (x == 24) {
-            uint8 value = uint8(buffer[pos++]);
-            return (pos, value);
+            uint8 value = uint8(stream.buffer[stream.pos++]);
+            return value;
         }
         // Commented out to save gas
         // else if (x == 25) { // 16-bit
@@ -94,18 +98,18 @@ contract NZCP is EllipticCurve, Strings {
         // }
         else if (x == 26) { // 32-bit
             uint32 value;
-            value = uint32(uint8(buffer[pos++])) << 24;
-            value |= uint32(uint8(buffer[pos++])) << 16;
-            value |= uint32(uint8(buffer[pos++])) << 8;
-            value |= uint32(uint8(buffer[pos++]));
-            return (pos, value);
+            value = uint32(uint8(stream.buffer[stream.pos++])) << 24;
+            value |= uint32(uint8(stream.buffer[stream.pos++])) << 16;
+            value |= uint32(uint8(stream.buffer[stream.pos++])) << 8;
+            value |= uint32(uint8(stream.buffer[stream.pos++]));
+            return value;
         }
         else {
             revert UnsupportedCBORUint();
         }
     }
 
-    function decodeString(bytes memory buffer, uint pos, uint len) private pure returns (uint, string memory) {
+    function decodeString(Stream memory stream, uint len) private pure returns (string memory) {
         string memory str = new string(len);
 
         uint strptr;
@@ -114,126 +118,119 @@ contract NZCP is EllipticCurve, Strings {
         
         uint bufferptr;
         // 32 is the length of the string header
+        uint pos = stream.pos;
+        bytes memory buffer = stream.buffer;
         assembly { bufferptr := add(add(buffer, 32), pos) }
 
         memcpy(strptr, bufferptr, len);
 
-        return (pos + len, str);
+        stream.pos += len;
+
+        return str;
     }
 
-    function skipValue(bytes memory buffer, uint pos) private pure returns (uint) {
-        uint v;
-        uint cbortype;
-        (pos, cbortype, v) = readType(buffer, pos);
+    function skipValue(Stream memory stream) private pure {
+        (uint cbortype, uint v) = readType(stream);
 
         uint value;
         if (cbortype == MAJOR_TYPE_INT) {
-            (pos, value) = decodeUint(buffer, pos, v);
-            return pos;
+            value = decodeUint(stream, v);
+            return;
         }
         // Commented out to save gas
         // else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
-        //     (pos, value) = decodeUint(buffer, pos, v);
-        //     return pos;
+        //     value = decodeUint(stream, v);
+        //     return;
         // }
         // Commented out to save gas
         // else if (cbortype == MAJOR_TYPE_BYTES) {
-        //     (pos, value) = decodeUint(buffer, pos, v);
+        //     value = decodeUint(stream, v);
         //     pos += value;
-        //     return pos;
+        //     return;
         // }
         else if (cbortype == MAJOR_TYPE_STRING) {
-            (pos, value) = decodeUint(buffer, pos, v);
-            pos += value;
-            return pos;
+            value = decodeUint(stream, v);
+            stream.pos += value;
+            return;
         }
         else if (cbortype == MAJOR_TYPE_ARRAY) {
-            (pos, value) = decodeUint(buffer, pos, v);
+            value = decodeUint(stream, v);
             for (uint i = 0; i++ < value;) {
-                pos = skipValue(buffer, pos);
+                skipValue(stream);
             }
-            return pos;
+            return;
         }
         // Commented out to save gas
         // else if (cbortype == MAJOR_TYPE_MAP) {
-        //     (pos, value) = decodeUint(buffer, pos, v);
+        //     value = decodeUint(stream, v);
         //     for (uint i = 0; i++ < value;) {
-        //         pos = skipValue(buffer, pos);
-        //         pos = skipValue(buffer, pos);
+        //         skipValue(stream);
+        //         skipValue(stream);
         //     }
-        //     return pos;
+        //     return;
         // }
         else {
             revert UnexpectedCBORType();
         }
     }
 
-    function readType(bytes memory buffer, uint pos) private pure returns (uint, uint, uint) {
-        uint v = uint8(buffer[pos]);
-        return (++pos, v >> 5, v);
+    function readType(Stream memory stream) private pure returns (uint, uint) {
+        uint v = uint8(stream.buffer[stream.pos++]);
+        return (v >> 5, v);
     }
 
-    function readStringValue(bytes memory buffer, uint pos) private pure returns (uint, string memory) {
-        uint v;
-        uint value;
-        (pos, value, v) = readType(buffer, pos);
+    function readStringValue(Stream memory stream) private pure returns (string memory) {
+        (uint value, uint v) = readType(stream);
         revert_if(value != MAJOR_TYPE_STRING, UnexpectedCBORType);
-        (pos, value) = decodeUint(buffer, pos, v);
-        return decodeString(buffer, pos, value);
+        value = decodeUint(stream, v);
+        string memory str = decodeString(stream, value);
+        return str;
     }
 
-    function readMapLength(bytes memory buffer, uint pos) private pure returns (uint, uint) {
-        uint v;
-        uint value;
-        (pos, value, v) = readType(buffer, pos);
+    function readMapLength(Stream memory stream) private pure returns (uint) {
+        (uint value, uint v) = readType(stream);
         revert_if(value != MAJOR_TYPE_MAP, UnexpectedCBORType);
-        (pos, value) = decodeUint(buffer, pos, v);
-        return (pos, value);
+        value = decodeUint(stream, v);
+        return value;
     }
 
     // Recursively searches the position of credential subject in the CWT claims
     // Side effects: reverts transaction if pass is expired.
-    function findCredSubj(bytes memory buffer, uint pos, uint pathindex) private view returns (uint) {
-        uint maplen;
-        (pos, maplen) = readMapLength(buffer, pos);
+    function findCredSubj(Stream memory stream, uint pathindex) private view {
+        uint maplen = readMapLength(stream);
 
         for (uint i = 0; i++ < maplen;) {
-            uint v;
-            uint cbortype;
-            (pos, cbortype, v) = readType(buffer, pos);
+            (uint cbortype, uint v) = readType(stream);
 
-            uint value;
-            (pos, value) = decodeUint(buffer, pos, v);
+            uint value = decodeUint(stream, v);
             if (cbortype == MAJOR_TYPE_INT) {
                 if (value == 4) {
-                    (pos, cbortype, v) = readType(buffer, pos);
+                    (cbortype, v) = readType(stream);
                     revert_if(cbortype != MAJOR_TYPE_INT, UnexpectedCBORType);
 
-                    uint exp;
-                    (pos, exp) = decodeUint(buffer, pos, v);
+                    uint exp = decodeUint(stream, v);
                      // check if pass expired
                     revert_if(block.timestamp >= exp, PassExpired);
                 }
                 // We do not check for whether pass is active, since we assume
                 // That the NZ MoH only issues active passes
                 else {
-                    pos = skipValue(buffer, pos); // skip value
+                    skipValue(stream); // skip value
                 }
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
-                string memory key;
-                (pos, key) = decodeString(buffer, pos, value);
+                string memory key = decodeString(stream, value);
 
                 if (keccak256(abi.encodePacked(key)) == CREDENTIAL_SUBJECT_PATH[pathindex]) {
                     if (pathindex >= CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1) {
-                        return pos;
+                        return;
                     }
                     else {
-                        return findCredSubj(buffer, pos, pathindex + 1);
+                        return findCredSubj(stream, pathindex + 1);
                     }
                 }
                 else {
-                    pos = skipValue(buffer, pos); // skip value
+                    skipValue(stream); // skip value
                 }
             }
             else {
@@ -242,9 +239,9 @@ contract NZCP is EllipticCurve, Strings {
         }
     }
 
-    function decodeCredSubj(bytes memory buffer, uint pos) private pure returns (string memory, string memory, string memory) {
+    function decodeCredSubj(Stream memory stream) private pure returns (string memory, string memory, string memory) {
         uint maplen;
-        (pos, maplen) = readMapLength(buffer, pos);
+        maplen = readMapLength(stream);
 
         string memory givenName;
         string memory familyName;
@@ -252,19 +249,19 @@ contract NZCP is EllipticCurve, Strings {
 
         string memory key;
         for (uint i = 0; i++ < maplen;) {
-            (pos, key) = readStringValue(buffer, pos);
+            key = readStringValue(stream);
 
             if (keccak256(abi.encodePacked(key)) == GIVEN_NAME_KECCAK256) {
-                (pos, givenName) = readStringValue(buffer, pos);
+                givenName = readStringValue(stream);
             }
             else if (keccak256(abi.encodePacked(key)) == FAMILY_NAME_KECCAK256) {
-                (pos, familyName) = readStringValue(buffer, pos);
+                familyName = readStringValue(stream);
             }
             else if (keccak256(abi.encodePacked(key)) == DOB_KECCAK256) {
-                (pos, dob) = readStringValue(buffer, pos);
+                dob = readStringValue(stream);
             }
             else {
-                pos = skipValue(buffer, pos); // skip value
+                skipValue(stream); // skip value
             }
         }
         return (givenName, familyName, dob);
@@ -291,6 +288,8 @@ contract NZCP is EllipticCurve, Strings {
 
         verifySign(sha256(ToBeSigned), rs, isExample);
 
-        return decodeCredSubj(ToBeSigned, findCredSubj(ToBeSigned, CLAIMS_SKIP, 0));
+        Stream memory stream = Stream(ToBeSigned, CLAIMS_SKIP); 
+        findCredSubj(stream, 0);
+        return decodeCredSubj(stream);
     }
 }
