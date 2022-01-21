@@ -116,9 +116,9 @@ contract NZCP is EllipticCurve, Strings {
         assembly { strptr := add(str, 32) }
         
         uint bufferptr;
-        // 32 is the length of the string header
         uint pos = stream.pos;
         bytes memory buffer = stream.buffer;
+        // 32 is the length of the string header
         assembly { bufferptr := add(add(buffer, 32), pos) }
 
         memcpy(strptr, bufferptr, len);
