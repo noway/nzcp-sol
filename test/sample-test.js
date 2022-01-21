@@ -176,3 +176,5 @@ describe("NZCP - test pass URIs", function () {
     expect(await nzcp.readCredSubj(pass.ToBeSigned, [pass.r, pass.s], 1)).to.deep.equal(JackSparrow);
   });
 })
+
+// TODO: test live passes

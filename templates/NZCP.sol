@@ -56,7 +56,7 @@ import "./UtilStrings.sol";
  27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSigned
  And get to the CWT claims straight away
 */
-#define CLAIMS_SKIP 27
+#define CLAIMS_SKIP 27 // TODO: this might be different for live pass
 
 /* keccak256(abi.encodePacked("vc")) */
 #define VC_KECCAK256 0x6ec613b793842434591077d5267660b73eca3bb163edb2574938d0a1b9fed380
