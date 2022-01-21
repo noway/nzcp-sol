@@ -3,5 +3,8 @@
 contracts/NZCP.sol: templates/NZCP.sol
 	rm -f $@ && cpp -P $< > $@
 
-test: contracts/NZCP.sol
+node_modules/:
+	yarn
+
+test: contracts/NZCP.sol node_modules/
 	npx hardhat test
