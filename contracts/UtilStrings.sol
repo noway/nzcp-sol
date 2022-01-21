@@ -1,6 +1,12 @@
+// SPDX-License-Identifier: Apache-2.0 
+   
 pragma solidity ^0.8.11;
 
-contract Strings {
+/*
+ * @title String & slice utility library for Solidity contracts.
+ * @author Nick Johnson <arachnid@notdot.net>
+ */
+contract UtilStrings {
 
     function memcpy(uint dest, uint src, uint len) internal pure {
         // Copy word-length chunks while possible

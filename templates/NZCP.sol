@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.11;
 
 import "./EllipticCurve.sol";
-import "./Strings.sol";
+import "./UtilStrings.sol";
 
 /// @dev This contract is compiled from a template file.
 /// You can see the full template at https://github.com/noway/nzcp-sol/blob/main/templates/nzcp.sol
@@ -93,7 +94,7 @@ import "./Strings.sol";
     // revert
 
 /// @dev Start of the NZCP contract
-contract NZCP is EllipticCurve, Strings {
+contract NZCP is EllipticCurve, UtilStrings {
 
 
     /// -----------------------------------------------------------------------
