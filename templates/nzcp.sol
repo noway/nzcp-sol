@@ -216,9 +216,7 @@ contract NZCP is EllipticCurve, Strings {
                 }
             }
             else if (cbortype == MAJOR_TYPE_STRING) {
-                string memory key = decodeString(stream, value);
-
-                if (keccak256(abi.encodePacked(key)) == CREDENTIAL_SUBJECT_PATH[pathindex]) {
+                if (keccak256(abi.encodePacked(decodeString(stream, value))) == CREDENTIAL_SUBJECT_PATH[pathindex]) {
                     if (pathindex >= CREDENTIAL_SUBJECT_PATH_LENGTH_MINUS_1) {
                         return;
                     }
