@@ -135,30 +135,25 @@ contract NZCP is EllipticCurve, Strings {
         uint value;
         if (cbortype == MAJOR_TYPE_INT) {
             value = decodeUint(stream, v);
-            return;
         }
         // Commented out to save gas
         // else if (cbortype == MAJOR_TYPE_NEGATIVE_INT) {
         //     value = decodeUint(stream, v);
-        //     return;
         // }
         // Commented out to save gas
         // else if (cbortype == MAJOR_TYPE_BYTES) {
         //     value = decodeUint(stream, v);
         //     pos += value;
-        //     return;
         // }
         else if (cbortype == MAJOR_TYPE_STRING) {
             value = decodeUint(stream, v);
             stream.pos += value;
-            return;
         }
         else if (cbortype == MAJOR_TYPE_ARRAY) {
             value = decodeUint(stream, v);
             for (uint i = 0; i++ < value;) {
                 skipValue(stream);
             }
-            return;
         }
         // Commented out to save gas
         // else if (cbortype == MAJOR_TYPE_MAP) {
@@ -167,7 +162,6 @@ contract NZCP is EllipticCurve, Strings {
         //         skipValue(stream);
         //         skipValue(stream);
         //     }
-        //     return;
         // }
         else {
             revert UnexpectedCBORType();
