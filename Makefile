@@ -1,4 +1,4 @@
-.PHONY: contracts/nzcp.sol
+.PHONY: contracts/NZCP.sol
 
-contracts/nzcp.sol: templates/nzcp.sol
+contracts/NZCP.sol: templates/NZCP.sol
 	rm -f $@ && cpp -P $< > $@
