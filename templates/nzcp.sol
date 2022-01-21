@@ -86,8 +86,7 @@ contract NZCP is EllipticCurve, Strings {
             return x;
         }
         else if (x == 24) {
-            uint8 value = uint8(stream.buffer[stream.pos++]);
-            return value;
+            return uint8(stream.buffer[stream.pos++]);
         }
         // Commented out to save gas
         // else if (x == 25) { // 16-bit
