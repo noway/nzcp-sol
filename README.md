@@ -17,3 +17,8 @@ TODO
 
 ## Usage
 TODO
+
+## Test
+```bash
+make test
+```
