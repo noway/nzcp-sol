@@ -201,9 +201,8 @@ contract NZCP is EllipticCurve, Strings {
                     (cbortype, v) = readType(stream);
                     revert_if(cbortype != MAJOR_TYPE_INT, UnexpectedCBORType);
 
-                    uint exp = decodeUint(stream, v);
                      // check if pass expired
-                    revert_if(block.timestamp >= exp, PassExpired);
+                    revert_if(block.timestamp >= decodeUint(stream, v), PassExpired);
                 }
                 // We do not check for whether pass is active, since we assume
                 // That the NZ MoH only issues active passes
@@ -233,8 +232,7 @@ contract NZCP is EllipticCurve, Strings {
     }
 
     function decodeCredSubj(Stream memory stream) private pure returns (string memory, string memory, string memory) {
-        uint maplen;
-        maplen = readMapLength(stream);
+        uint maplen = readMapLength(stream);
 
         string memory givenName;
         string memory familyName;
