@@ -78,7 +78,6 @@ error PassExpired();
 /// - To save gas, the full pass URI is not passed into the contract, but merely the ToBeSigned value.
 /// - The definition of ToBeSigned can be found here: https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
-// TODO: try other hashing funcs
 contract NZCP is EllipticCurve, Strings {
 
     struct Stream {
