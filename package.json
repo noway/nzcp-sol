@@ -6,6 +6,8 @@
     "hardhat": "^2.8.2"
   },
   "dependencies": {
+    "@vaxxnz/nzcp": "^1.1.1",
+    "dotenv": "^14.2.0",
     "hardhat-gas-reporter": "^1.0.7"
   }
 }
