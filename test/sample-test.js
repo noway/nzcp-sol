@@ -181,11 +181,8 @@ describe("NZCP - example pass URIs", function () {
 })
 
 const LIVE_PASS_URI_1 = process.env.LIVE_PASS_URI_1;
-
 const LIVE_PASS_URI_2 = process.env.LIVE_PASS_URI_2;
-
 const LIVE_PASS_URI_3 = process.env.LIVE_PASS_URI_3;
-
 
 describe("NZCP - live pass URIs", function () {
   it("Should pass on LIVE_PASS_URI_1", async function () {
@@ -195,18 +192,22 @@ describe("NZCP - live pass URIs", function () {
     const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
     expect(await nzcp.readCredSubj(pass.ToBeSigned, [pass.r, pass.s], 0)).to.deep.equal(credSubj);
   });
-  it("Should pass on LIVE_PASS_URI_2", async function () {
-    const nzcp = await setupNZCP();
-    const pass = getToBeSigned(LIVE_PASS_URI_2);
-    const result = verifyPassURIOffline(LIVE_PASS_URI_1)
-    const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
-    expect(await nzcp.readCredSubj(pass.ToBeSigned, [pass.r, pass.s], 0)).to.deep.equal(credSubj);
-  });
-  it("Should pass on LIVE_PASS_URI_3", async function () {
-    const nzcp = await setupNZCP();
-    const pass = getToBeSigned(LIVE_PASS_URI_3);
-    const result = verifyPassURIOffline(LIVE_PASS_URI_1)
-    const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
-    expect(await nzcp.readCredSubj(pass.ToBeSigned, [pass.r, pass.s], 0)).to.deep.equal(credSubj);
-  });
+  if (LIVE_PASS_URI_2) {
+    it("Should pass on LIVE_PASS_URI_2", async function () {
+      const nzcp = await setupNZCP();
+      const pass = getToBeSigned(LIVE_PASS_URI_2);
+      const result = verifyPassURIOffline(LIVE_PASS_URI_2)
+      const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
+      expect(await nzcp.readCredSubj(pass.ToBeSigned, [pass.r, pass.s], 0)).to.deep.equal(credSubj);
+    });
+  }
+  if (LIVE_PASS_URI_3) {
+    it("Should pass on LIVE_PASS_URI_3", async function () {
+      const nzcp = await setupNZCP();
+      const pass = getToBeSigned(LIVE_PASS_URI_3);
+      const result = verifyPassURIOffline(LIVE_PASS_URI_3)
+      const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
+      expect(await nzcp.readCredSubj(pass.ToBeSigned, [pass.r, pass.s], 0)).to.deep.equal(credSubj);
+    });
+  }
 });
