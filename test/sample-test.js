@@ -179,24 +179,24 @@ describe("NZCP - live pass URIs", function () {
   })
 
   it("Should pass on LIVE_PASS_URI_1", async function () {
-    const pass = getToBeSigned(LIVE_PASS_URI_1);
     const result = verifyPassURIOffline(LIVE_PASS_URI_1)
     const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
+    const pass = getToBeSigned(LIVE_PASS_URI_1);
     expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 0)).to.deep.equal(credSubj);
   });
   if (LIVE_PASS_URI_2) {
     it("Should pass on LIVE_PASS_URI_2", async function () {
-      const pass = getToBeSigned(LIVE_PASS_URI_2);
       const result = verifyPassURIOffline(LIVE_PASS_URI_2)
       const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
+      const pass = getToBeSigned(LIVE_PASS_URI_2);
       expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 0)).to.deep.equal(credSubj);
     });
   }
   if (LIVE_PASS_URI_3) {
     it("Should pass on LIVE_PASS_URI_3", async function () {
-      const pass = getToBeSigned(LIVE_PASS_URI_3);
       const result = verifyPassURIOffline(LIVE_PASS_URI_3)
       const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
+      const pass = getToBeSigned(LIVE_PASS_URI_3);
       expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 0)).to.deep.equal(credSubj);
     });
   }
