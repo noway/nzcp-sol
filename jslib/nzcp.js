@@ -154,7 +154,7 @@ function getToBeSigned(pass) {
   const ToBeSigned = "0x" + buf2hex(sig_structure);
   const r = "0x" + `${buf2hex(data.signature.slice(0, 32))}`.toUpperCase()
   const s = "0x" + `${buf2hex(data.signature.slice(32, 64))}`.toUpperCase()
-  return { ToBeSigned, r, s }
+  return { ToBeSigned, rs: [r, s] }
 }
 
 module.exports.getToBeSigned = getToBeSigned;
