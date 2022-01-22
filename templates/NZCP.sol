@@ -53,11 +53,15 @@ import "./UtilStrings.sol";
 #define LIVE_Y 0x971816CEC2ED548F1FA999933CFA3D9D9FA4CC6B3BC3B5CEF3EAD453AF0EC662
 
 /*
- 27 bytes to skip the ["Signature1", headers, buffer0] start of ToBeSigned
- And get to the CWT claims straight away
+ 27 bytes in example passes to skip the ["Signature1", headers, buffer0] 
+ start of ToBeSigned And get to the CWT claims straight away
 */
-// TODO: this might be different for live pass
-#define CLAIMS_SKIP 27 
+#define CLAIMS_SKIP_EXAMPLE 27 
+/*
+ 30 bytes in live passes to skip the ["Signature1", headers, buffer0] 
+ start of ToBeSigned And get to the CWT claims straight away
+*/
+#define CLAIMS_SKIP_LIVE 30
 
 /* keccak256(abi.encodePacked("vc")) */
 #define VC_KECCAK256 0x6ec613b793842434591077d5267660b73eca3bb163edb2574938d0a1b9fed380
@@ -365,7 +369,7 @@ contract NZCP is EllipticCurve, UtilStrings {
 
         verifySign(sha256(ToBeSigned), rs, isExample);
 
-        Stream memory stream = Stream(ToBeSigned, CLAIMS_SKIP); 
+        Stream memory stream = Stream(ToBeSigned, isExample ? CLAIMS_SKIP_EXAMPLE : CLAIMS_SKIP_LIVE); 
 
         findCredSubj(stream, 0);
         return decodeCredSubj(stream);
