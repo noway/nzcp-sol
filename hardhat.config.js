@@ -1,6 +1,11 @@
 require("@nomiclabs/hardhat-waffle");
 require("hardhat-gas-reporter");
 
+require("dotenv").config();
+
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
+const ROPSTEN_PRIVATE_KEY = process.env.ROPSTEN_PRIVATE_KEY;
+
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
 
@@ -20,7 +25,6 @@ module.exports = {
     },
   },
 
-  // solidity: "",
   paths: {
     sources: "./contracts",
     tests: "./test",
@@ -31,5 +35,12 @@ module.exports = {
   gasReporter: {
     currency: 'USD',
     gasPrice: 80
-  }
+  },
+
+  networks: {
+    ropsten: {
+      url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+      accounts: [`${ROPSTEN_PRIVATE_KEY}`]
+    }
+  },
 };
