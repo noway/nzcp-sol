@@ -60,46 +60,46 @@ describe("NZCP - example pass ToBeSigned", function () {
     const messageHash = "0x271CE33D671A2D3B816D788135F4343E14BC66802F8CD841FAAC939E8C11F3EE";
     const r = "0xD2E07B1DD7263D833166BDBB4F1A093837A905D7ECA2EE836B6B2ADA23C23154";
     const s = "0xFBA88A529F675D6686EE632B09EC581AB08F72B458904BB3396D10FA66D11477";
-    expect(await nzcp.verifySign(messageHash, [r, s], 1)).to.equal(true);
+    expect(await nzcp.verifySignExample(messageHash, [r, s])).to.equal(true);
   });
   it("Should parse credential subject in ToBeSigned", async function () {
-    const result = await nzcp.readCredSubj(
-      EXAMPLE_PASS.ToBeSigned, EXAMPLE_PASS.rs, 1)
+    const result = await nzcp.readCredSubjExample(
+      EXAMPLE_PASS.ToBeSigned, EXAMPLE_PASS.rs)
     expect(result).to.deep.equal(JackSparrow);
   });
   it("Should fail BAD_PUBLIC_KEY_PASS", async function () {
     expect(
-      nzcp.readCredSubj(
-        BAD_PUBLIC_KEY_PASS.ToBeSigned, BAD_PUBLIC_KEY_PASS.rs, 1)
+      nzcp.readCredSubjExample(
+        BAD_PUBLIC_KEY_PASS.ToBeSigned, BAD_PUBLIC_KEY_PASS.rs)
     ).to.be.revertedWith("InvalidSignature()");
   });
   it("Should parse PUBLIC_KEY_NOT_FOUND_PASS while violating spec", async function () {
-    const result = await nzcp.readCredSubj(
-      PUBLIC_KEY_NOT_FOUND_PASS.ToBeSigned, PUBLIC_KEY_NOT_FOUND_PASS.rs, 1);
+    const result = await nzcp.readCredSubjExample(
+      PUBLIC_KEY_NOT_FOUND_PASS.ToBeSigned, PUBLIC_KEY_NOT_FOUND_PASS.rs);
     // We're deviating from the spec here, since NZ Ministry of Health is not going to issue passes with mismatching kid.
     expect(result).to.deep.equal(JackSparrow);
   });
   it("Should fail MODIFIED_SIGNATURE_PASS", async function () {
     expect(
-      nzcp.readCredSubj(
-        MODIFIED_SIGNATURE_PASS.ToBeSigned, MODIFIED_SIGNATURE_PASS.rs, 1)
+      nzcp.readCredSubjExample(
+        MODIFIED_SIGNATURE_PASS.ToBeSigned, MODIFIED_SIGNATURE_PASS.rs)
     ).to.be.revertedWith("InvalidSignature()");
   });
   it("Should fail MODIFIED_PAYLOAD_PASS", async function () {
     expect(
-      nzcp.readCredSubj(
-        MODIFIED_PAYLOAD_PASS.ToBeSigned, MODIFIED_PAYLOAD_PASS.rs, 1)
+      nzcp.readCredSubjExample(
+        MODIFIED_PAYLOAD_PASS.ToBeSigned, MODIFIED_PAYLOAD_PASS.rs)
     ).to.be.revertedWith("InvalidSignature()");
   });
   it("Should fail EXPIRED_PASS", async function () {
     expect(
-      nzcp.readCredSubj(
-        EXPIRED_PASS.ToBeSigned, EXPIRED_PASS.rs, 1)
+      nzcp.readCredSubjExample(
+        EXPIRED_PASS.ToBeSigned, EXPIRED_PASS.rs)
     ).to.be.revertedWith("PassExpired()");
   });
   it("Should parse NOT_ACTIVE_PASS while violating spec", async function () {
-    const result = await nzcp.readCredSubj(
-      NOT_ACTIVE_PASS.ToBeSigned, NOT_ACTIVE_PASS.rs, 1);
+    const result = await nzcp.readCredSubjExample(
+      NOT_ACTIVE_PASS.ToBeSigned, NOT_ACTIVE_PASS.rs);
     // Deviating from spec again, since NZ Ministry of Health is not going to issue passes which are not yet active.
     expect(result).to.deep.equal(JackSparrow);
   });
@@ -127,33 +127,33 @@ describe("NZCP - example pass URIs", function () {
   });
   it("Should pass on EXAMPLE_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(EXAMPLE_PASS_URI);
-    expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 1)).to.deep.equal(JackSparrow);
+    expect(await nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.deep.equal(JackSparrow);
   });
   it("Should fail on BAD_PUBLIC_KEY_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(BAD_PUBLIC_KEY_PASS_URI);
-    expect(nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 1)).to.be.revertedWith("InvalidSignature()")
+    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
   });
   it("Should fail on PUBLIC_KEY_NOT_FOUND_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(PUBLIC_KEY_NOT_FOUND_PASS_URI);
     // We're deviating from the spec here, since NZ Ministry of Health is not going to issue passes with mismatching kid.
-    expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 1)).to.deep.equal(JackSparrow) 
+    expect(await nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.deep.equal(JackSparrow) 
   });
   it("Should fail on MODIFIED_SIGNATURE_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(MODIFIED_SIGNATURE_PASS_URI);
-    expect(nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 1)).to.be.revertedWith("InvalidSignature()")
+    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
   });
   it("Should fail on MODIFIED_PAYLOAD_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(MODIFIED_PAYLOAD_PASS_URI);
-    expect(nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 1)).to.be.revertedWith("InvalidSignature()")
+    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
   });
   it("Should fail on EXPIRED_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(EXPIRED_PASS_URI);
-    expect(nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 1)).to.be.revertedWith("PassExpired()")
+    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("PassExpired()")
   });
   it("Should pass on NOT_ACTIVE_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(NOT_ACTIVE_PASS_URI);
     // Deviating from spec again, since NZ Ministry of Health is not going to issue passes which are not yet active.
-    expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 1)).to.deep.equal(JackSparrow);
+    expect(await nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.deep.equal(JackSparrow);
   });
 });
 
@@ -170,14 +170,14 @@ describe("NZCP - live pass URIs", function () {
     const result = verifyPassURIOffline(LIVE_PASS_URI_1)
     const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
     const pass = getToBeSignedAndRs(LIVE_PASS_URI_1);
-    expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 0)).to.deep.equal(credSubj);
+    expect(await nzcp.readCredSubjLive(pass.ToBeSigned, pass.rs)).to.deep.equal(credSubj);
   });
   if (LIVE_PASS_URI_2) {
     it("Should pass on LIVE_PASS_URI_2", async function () {
       const result = verifyPassURIOffline(LIVE_PASS_URI_2)
       const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
       const pass = getToBeSignedAndRs(LIVE_PASS_URI_2);
-      expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 0)).to.deep.equal(credSubj);
+      expect(await nzcp.readCredSubjLive(pass.ToBeSigned, pass.rs)).to.deep.equal(credSubj);
     });
   }
   if (LIVE_PASS_URI_3) {
@@ -185,7 +185,7 @@ describe("NZCP - live pass URIs", function () {
       const result = verifyPassURIOffline(LIVE_PASS_URI_3)
       const credSubj = [result.credentialSubject.givenName, result.credentialSubject.familyName, result.credentialSubject.dob]
       const pass = getToBeSignedAndRs(LIVE_PASS_URI_3);
-      expect(await nzcp.readCredSubj(pass.ToBeSigned, pass.rs, 0)).to.deep.equal(credSubj);
+      expect(await nzcp.readCredSubjLive(pass.ToBeSigned, pass.rs)).to.deep.equal(credSubj);
     });
   }
 });

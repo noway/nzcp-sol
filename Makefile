@@ -1,7 +1,8 @@
 .PHONY: contracts/NZCP.sol
 
 contracts/NZCP.sol: templates/NZCP.sol
-	rm -f $@ && cpp -P $< > $@
+	rm -f $@
+	cpp -P -DEXPORT_EXAMPLE_FUNCS -DEXPORT_LIVE_FUNCS $< > $@ 
 
 node_modules/:
 	yarn

@@ -337,41 +337,64 @@ contract NZCP is EllipticCurve, UtilStrings {
         return (givenName, familyName, dob);
     }
 
-
+    #ifdef EXPORT_EXAMPLE_FUNCS
     /// -----------------------------------------------------------------------
-    /// Public contract functions
+    /// Public contract functions for example passes
     /// -----------------------------------------------------------------------
 
 
-    /// @dev Verify the signature of the message hash of the ToBeSigned value of an NZCP pass
+    /// @dev Verify the signature of the message hash of the ToBeSigned value of an example NZCP pass
     /// @param messageHash The message hash of ToBeSigned value
     /// @param rs The r and s values of the signature
-    /// @param isExample Is this an example or a live pass
     /// @return True if the signature is valid, reverts transaction otherwise
-    function verifySign(bytes32 messageHash, uint256[2] memory rs, bool isExample) public pure returns (bool) {
-        if (isExample) {
-            revert_if(!validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), InvalidSignature);
-            return true;
-        }
-        else {
-            revert_if(!validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]),  InvalidSignature);
-            return true;
-        }
+    function verifySignExample(bytes32 messageHash, uint256[2] memory rs) public pure returns (bool) {
+        revert_if(!validateSignature(messageHash, rs, [EXAMPLE_X, EXAMPLE_Y]), InvalidSignature);
+        return true;
     }
 
-    /// @dev Verifies the signature, parses the ToBeSigned value and returns the credential subject of an NZCP pass
+    /// @dev Verifies the signature, parses the ToBeSigned value and returns the credential subject of an example NZCP pass
     /// @param ToBeSigned The ToBeSigned value as per https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
     /// @param rs The r and s values of the signature
-    /// @param isExample Is this an example or a live pass
     /// @return credential subject (givenName, familyName, dob) if pass is valid, reverts transaction otherwise
-    function readCredSubj(bytes memory ToBeSigned, uint256[2] memory rs, bool isExample) public view 
+    function readCredSubjExample(bytes memory ToBeSigned, uint256[2] memory rs) public view 
         returns (string memory, string memory, string memory) {
 
-        verifySign(sha256(ToBeSigned), rs, isExample);
+        verifySignExample(sha256(ToBeSigned), rs);
 
-        Stream memory stream = Stream(ToBeSigned, isExample ? CLAIMS_SKIP_EXAMPLE : CLAIMS_SKIP_LIVE); 
+        Stream memory stream = Stream(ToBeSigned, CLAIMS_SKIP_EXAMPLE); 
 
         findCredSubj(stream, 0);
         return decodeCredSubj(stream);
     }
+    #endif
+
+    #ifdef EXPORT_LIVE_FUNCS
+    /// -----------------------------------------------------------------------
+    /// Public contract functions for live passes
+    /// -----------------------------------------------------------------------
+
+
+    /// @dev Verify the signature of the message hash of the ToBeSigned value of a live NZCP pass
+    /// @param messageHash The message hash of ToBeSigned value
+    /// @param rs The r and s values of the signature
+    /// @return True if the signature is valid, reverts transaction otherwise
+    function verifySignLive(bytes32 messageHash, uint256[2] memory rs) public pure returns (bool) {
+        revert_if(!validateSignature(messageHash, rs, [LIVE_X, LIVE_Y]),  InvalidSignature);
+    }
+
+    /// @dev Verifies the signature, parses the ToBeSigned value and returns the credential subject of a live NZCP pass
+    /// @param ToBeSigned The ToBeSigned value as per https://datatracker.ietf.org/doc/html/rfc8152#section-4.4
+    /// @param rs The r and s values of the signature
+    /// @return credential subject (givenName, familyName, dob) if pass is valid, reverts transaction otherwise
+    function readCredSubjLive(bytes memory ToBeSigned, uint256[2] memory rs) public view 
+        returns (string memory, string memory, string memory) {
+
+        verifySignLive(sha256(ToBeSigned), rs);
+
+        Stream memory stream = Stream(ToBeSigned, CLAIMS_SKIP_LIVE); 
+
+        findCredSubj(stream, 0);
+        return decodeCredSubj(stream);
+    }
+    #endif
 }
