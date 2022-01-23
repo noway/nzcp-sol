@@ -10,11 +10,11 @@ An implementation of the [NZ COVID Pass](https://github.com/minhealthnz/nzcovidp
    * The definition of `ToBeSigned` can be found here: https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 
 ## Assumptions
-- NZ Ministry of Health never going to sign any malformed CBOR
+- The NZ Ministry of Health is never going to sign any malformed CBOR
     * This assumption relies on internal implementation of https://mycovidrecord.nz
- - NZ Ministry of Health never going to sign any pass that is not active
+ - The NZ Ministry of Health is never going to sign any pass that is not active
     * This assumption relies on internal implementation of https://mycovidrecord.nz
- - NZ Ministry of Health never going to change the private-public key pair used to sign the pass
+ - The NZ Ministry of Health is never going to change the private-public key pair used to sign the pass
     * This assumption relies on trusting NZ Ministry of Health not to leak their private key
 
 ## Privacy implications
@@ -33,7 +33,7 @@ Please note that the limitations above make any practical use of this contract o
 
 ## Building
 - Run `make` to build the project
-- You can build without live pass verification or without example pass verification by supplying `DFLAGS` environment variable into the `make` command.
+- You can build without the live pass verification or without the example pass verification by supplying `DFLAGS` environment variable into the `make` command.
     - `make DFLAGS=-DEXPORT_EXAMPLE_FUNCS` to build only example pass verification
     - `make DFLAGS=-DEXPORT_LIVE_FUNCS` to build only live pass verification
 

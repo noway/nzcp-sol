@@ -19,11 +19,11 @@ import "./UtilStrings.sol";
 ///    * The definition of ToBeSigned can be found here: https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
 ///
 /// Assumptions:
-/// - NZ Ministry of Health never going to sign any malformed CBOR
+/// - The NZ Ministry of Health is never going to sign any malformed CBOR
 ///    * This assumption relies on internal implementation of https://mycovidrecord.nz
-/// - NZ Ministry of Health never going to sign any pass that is not active
+/// - The NZ Ministry of Health is never going to sign any pass that is not active
 ///    * This assumption relies on internal implementation of https://mycovidrecord.nz
-/// - NZ Ministry of Health never going to change the private-public key pair used to sign the pass
+/// - The NZ Ministry of Health is never going to change the private-public key pair used to sign the pass
 ///    * This assumption relies on trusting NZ Ministry of Health not to leak their private key
 
 /* CBOR types */
