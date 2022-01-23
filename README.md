@@ -18,9 +18,9 @@ An implementation of the [NZ COVID Pass](https://github.com/minhealthnz/nzcovidp
     * This assumption relies on trusting NZ Ministry of Health not to leak their private key
 
 ## Privacy implications
-When you call `NZCP.readCredSubj` function as part of a transaction, your pass gets stored on blockchain as calldata. This allows 3rd parties to read your COVID pass and reconstruct your NZCP QR code, **effectively making your pass public**. This is bad since your pass could be then used by anyone. Never verify live passes as part of a transaction on a deployed version of this contract.
+When you call `NZCP.readCredSubjExample` or `NZCP.readCredSubjLive` function as part of a transaction, your pass gets stored on blockchain as calldata. This allows 3rd parties to read your COVID pass and reconstruct your NZCP QR code, **effectively making your pass public**. This is bad since your pass could be then used by anyone. Never verify live passes as part of a transaction on a deployed version of this contract.
 
-Contrary to using `NZCP.readCredSubj` function as part of a transaction, using it as merely a view function (e.g. when calling it via "Read Contract" feature on Etherscan) is fine since execution of a view function happens off-chain.
+Contrary to using `NZCP.readCredSubjExample` or `NZCP.readCredSubjLive` function as part of a transaction, using it as merely a view function (e.g. when calling it via "Read Contract" feature on Etherscan) is fine since execution of a view function happens off-chain.
 
 Please note that the limitations above make any practical use of this contract on live passes to be dangerous.
 
