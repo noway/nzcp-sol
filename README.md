@@ -27,6 +27,9 @@ TODO
 - Run `make deploy DFLAGS=-DEXPORT_EXAMPLE_FUNCS NETWORK=hardhat` to test deploying
 - Run `make deploy DFLAGS=-DEXPORT_EXAMPLE_FUNCS NETWORK=ropsten` to deploy on Ropsten testnet
 
+## Gas Usage
+Running tests consumes 1429033 gas units (optimizer enabled, 1000 runs)
+
 ## Privacy implications
 When you call `NZCP.readCredSubj` function as part of a transaction, your pass gets stored on blockchain as calldata. This allows 3rd parties to read your COVID pass and reconstruct your NZCP QR code. This is bad since your pass could be then used by anyone. Never verify live passes as part of a transaction on a deployed version of this contract.
 
