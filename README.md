@@ -26,6 +26,7 @@ TODO
 - Populate `.env` with `ALCHEMY_API_KEY` and `ROPSTEN_PRIVATE_KEY`
 - Run `make deploy DFLAGS=-DEXPORT_EXAMPLE_FUNCS NETWORK=hardhat` to test deploying
 - Run `make deploy DFLAGS=-DEXPORT_EXAMPLE_FUNCS NETWORK=ropsten` to deploy on Ropsten testnet
+  - Please don't deploy live pass verification to any remote network, as because executing the verify function as part of a transaction will result in the pass getting stored as calldata on the blockchain and effectively being public.
 
 ## Gas Usage
 Running tests consumes 1429033 gas units (optimizer enabled, 1000 runs)
