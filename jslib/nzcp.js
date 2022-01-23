@@ -137,7 +137,7 @@ const encodeBytes = data => {
   throw new Error('Too big data');
 };
 
-function getToBeSigned(pass) {
+function getToBeSignedAndRs(pass) {
   const data = decodeCOSE(Stream.fromBase32(pass.substring(8)))
   const sig_structure = new Uint8Array([
     // array w/ 4 items
@@ -157,4 +157,4 @@ function getToBeSigned(pass) {
   return { ToBeSigned, rs: [r, s] }
 }
 
-module.exports.getToBeSigned = getToBeSigned;
+module.exports.getToBeSignedAndRs = getToBeSignedAndRs;
