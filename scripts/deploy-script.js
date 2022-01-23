@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
   const NZCP = await hre.ethers.getContractFactory("NZCP");
-  const nzcp = await NZCP.deploy("Hello, Hardhat!");
+  const nzcp = await NZCP.deploy();
 
   await nzcp.deployed();
 
