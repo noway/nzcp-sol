@@ -16,7 +16,8 @@ npx hardhat help
 TODO
 
 ## Usage
-TODO
+- Prepare `ToBeSigned` value and the `rs` array by calling `getToBeSignedAndRs` on your pass
+- Call either `nzcp.readCredSubjExample(ToBeSigned, rs)` or `nzcp.readCredSubjLive(ToBeSigned, rs)` to verify your pass and get the credential subject
 
 ## Tests
 - Create `.env` file in the root directory of the project
