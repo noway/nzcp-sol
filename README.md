@@ -20,7 +20,7 @@ TODO
 
 ## Tests
 - Create `.env` file in the root directory of the project
-- Populate it with at least 1 live pass. 
+- Populate it with at least 1 live pass URI. 
     - Use `.env.example` as a reference.
 - Run `make test`
 
