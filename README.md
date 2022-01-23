@@ -25,7 +25,7 @@ Contrary to using `NZCP.readCredSubjExample`/`NZCP.readCredSubjLive` function as
 Please note that the limitations above make any practical use of this contract on live passes to be dangerous.
 
 ## Usage
-- Prepare `ToBeSigned` value and the `rs` array by calling `getToBeSignedAndRs` from `jslib/nzcp.js` on your pass
+- Prepare `ToBeSigned` value and the `rs` array by calling `getToBeSignedAndRs` from `jslib/nzcp.js` on your pass URI
 - Call either `nzcp.readCredSubjExample(ToBeSigned, rs)` or `nzcp.readCredSubjLive(ToBeSigned, rs)` to verify your pass and get the credential subject
 
 ## Requirements 
