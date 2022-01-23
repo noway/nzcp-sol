@@ -48,6 +48,9 @@ When you call `NZCP.readCredSubj` function as part of a transaction, your pass g
 ## Gas Usage
 Running tests consumes 1429033 gas units (optimizer enabled, 1000 runs)
 
+## Deployed version of the contract
+- Ropsten: https://ropsten.etherscan.io/address/0x14ffb19a685bb8ec4b925604280f7e441a343af9
+
 
 ## Audits
 N/A
