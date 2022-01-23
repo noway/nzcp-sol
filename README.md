@@ -15,7 +15,7 @@ An implementation of the [NZ COVID Pass](https://github.com/minhealthnz/nzcovidp
  - The NZ Ministry of Health is never going to sign any pass that is not active
     * This assumption relies on the internal implementation of https://mycovidrecord.nz
  - The NZ Ministry of Health is never going to change the private-public key pair used to sign the pass
-    * This assumption relies on trusting NZ Ministry of Health not to leak their private key
+    * This assumption relies on trusting the NZ Ministry of Health not to leak their private key
 
 ## Privacy implications
 When you call `NZCP.readCredSubjExample`/`NZCP.readCredSubjLive` function as part of a transaction, your pass gets stored on blockchain as calldata. This allows 3rd parties to read your COVID pass and reconstruct your NZCP QR code, **effectively making your pass public**. This is bad since your pass could be then used by anyone. Never verify live passes as part of a transaction on a deployed version of this contract.

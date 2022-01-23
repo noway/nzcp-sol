@@ -24,7 +24,7 @@ import "./UtilStrings.sol";
 /// - The NZ Ministry of Health is never going to sign any pass that is not active
 ///    * This assumption relies on the internal implementation of https://mycovidrecord.nz
 /// - The NZ Ministry of Health is never going to change the private-public key pair used to sign the pass
-///    * This assumption relies on trusting NZ Ministry of Health not to leak their private key
+///    * This assumption relies on trusting the NZ Ministry of Health not to leak their private key
 
 /* CBOR types */
 #define MAJOR_TYPE_INT 0
