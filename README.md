@@ -1,5 +1,7 @@
 # NZCP.sol
 
+An implementation of the [NZ COVID Pass](https://github.com/minhealthnz/nzcovidpass-spec) spec in Solidity.
+
 ## Features
 - Verifies NZCP pass and returns the credential subject (`givenName`, `familyName`, `dob`)
 - Reverts transaction if pass is invalid.
