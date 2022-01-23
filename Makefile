@@ -13,3 +13,6 @@ node_modules/:
 
 test: contracts/NZCP.sol node_modules/
 	npx hardhat test
+
+deploy: contracts/NZCP.sol node_modules/
+	npx hardhat run scripts/deploy-script.js --network $(NETWORK)
