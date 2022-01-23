@@ -20,9 +20,9 @@ import "./UtilStrings.sol";
 ///
 /// Assumptions:
 /// - The NZ Ministry of Health is never going to sign any malformed CBOR
-///    * This assumption relies on internal implementation of https://mycovidrecord.nz
+///    * This assumption relies on the internal implementation of https://mycovidrecord.nz
 /// - The NZ Ministry of Health is never going to sign any pass that is not active
-///    * This assumption relies on internal implementation of https://mycovidrecord.nz
+///    * This assumption relies on the internal implementation of https://mycovidrecord.nz
 /// - The NZ Ministry of Health is never going to change the private-public key pair used to sign the pass
 ///    * This assumption relies on trusting NZ Ministry of Health not to leak their private key
 
