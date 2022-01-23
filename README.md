@@ -1,7 +1,19 @@
 # NZCP.sol
 
 ## Features
-TODO
+- Verifies NZCP pass and returns the credential subject (`givenName`, `familyName`, `dob`)
+- Reverts transaction if pass is invalid.
+- To save gas, the full pass URI is not passed into the contract, but merely the `ToBeSigned` value.
+   * `ToBeSigned` value is enough to cryptographically prove that the pass is valid.
+   * The definition of `ToBeSigned` can be found here: https://datatracker.ietf.org/doc/html/rfc8152#section-4.4 
+
+## Assumptions
+- NZ Ministry of Health never going to sign any malformed CBOR
+    * This assumption relies on internal implementation of https://mycovidrecord.nz
+ - NZ Ministry of Health never going to sign any pass that is not active
+    * This assumption relies on internal implementation of https://mycovidrecord.nz
+ - NZ Ministry of Health never going to change the private-public key pair used to sign the pass
+    * This assumption relies on trusting NZ Ministry of Health not to leak their private key
 
 ## Privacy implications
 When you call `NZCP.readCredSubj` function as part of a transaction, your pass gets stored on blockchain as calldata. This allows 3rd parties to read your COVID pass and reconstruct your NZCP QR code. This is bad since your pass could be then used by anyone. Never verify live passes as part of a transaction on a deployed version of this contract.
