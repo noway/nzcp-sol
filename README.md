@@ -18,7 +18,11 @@ An implementation of the [NZ COVID Pass](https://github.com/minhealthnz/nzcovidp
     * This assumption relies on trusting NZ Ministry of Health not to leak their private key
 
 ## Privacy implications
-When you call `NZCP.readCredSubj` function as part of a transaction, your pass gets stored on blockchain as calldata. This allows 3rd parties to read your COVID pass and reconstruct your NZCP QR code. This is bad since your pass could be then used by anyone. Never verify live passes as part of a transaction on a deployed version of this contract.
+When you call `NZCP.readCredSubj` function as part of a transaction, your pass gets stored on blockchain as calldata. This allows 3rd parties to read your COVID pass and reconstruct your NZCP QR code, **effectively making your pass public**. This is bad since your pass could be then used by anyone. Never verify live passes as part of a transaction on a deployed version of this contract.
+
+Contrary to using `NZCP.readCredSubj` function as part of a transaction, using it as merely a view function (e.g. when calling it via "Read Contract" feature on Etherscan) is fine since execution of a view function happens off-chain.
+
+Please note that the limitations above make any practical use of this contract on live passes to be dangerous.
 
 ## Usage
 - Prepare `ToBeSigned` value and the `rs` array by calling `getToBeSignedAndRs` from `jslib/nzcp.js` on your pass
@@ -43,7 +47,7 @@ When you call `NZCP.readCredSubj` function as part of a transaction, your pass g
 - Populate `.env` with `ALCHEMY_API_KEY` and `ROPSTEN_PRIVATE_KEY`
 - Run `make deploy DFLAGS=-DEXPORT_EXAMPLE_FUNCS NETWORK=hardhat` to test deploying
 - Run `make deploy DFLAGS=-DEXPORT_EXAMPLE_FUNCS NETWORK=ropsten` to deploy on Ropsten testnet
-  - Please don't deploy live pass verification to any remote network, as because executing the verify function as part of a transaction will result in the pass getting stored as calldata on the blockchain and effectively being public.
+  - **WARNING**: Please don't deploy live pass verification to any remote network, as because executing the verify function as part of a transaction will result in the pass getting stored as calldata on the blockchain and effectively being public.
 
 ## Gas Usage
 Running tests consumes 1429033 gas units (optimizer enabled, 1000 runs)
