@@ -1,4 +1,4 @@
-.PHONY: contracts/NZCP.sol
+.PHONY: contracts/NZCP.sol clean
 
 DFLAGS=-DEXPORT_EXAMPLE_FUNCS -DEXPORT_LIVE_FUNCS
 
@@ -16,3 +16,8 @@ test: contracts/NZCP.sol node_modules/
 
 deploy: contracts/NZCP.sol node_modules/
 	npx hardhat run scripts/deploy-script.js --network $(NETWORK)
+
+clean:
+	rm -rf cache
+	rm -rf artifacts
+	rm -rf node_modules
