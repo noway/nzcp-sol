@@ -68,7 +68,7 @@ describe("NZCP - example pass ToBeSigned", function () {
     expect(result).to.deep.equal(JackSparrow);
   });
   it("Should fail BAD_PUBLIC_KEY_PASS", async function () {
-    expect(
+    await expect(
       nzcp.readCredSubjExample(
         BAD_PUBLIC_KEY_PASS.ToBeSigned, BAD_PUBLIC_KEY_PASS.rs)
     ).to.be.revertedWith("InvalidSignature()");
@@ -80,19 +80,19 @@ describe("NZCP - example pass ToBeSigned", function () {
     expect(result).to.deep.equal(JackSparrow);
   });
   it("Should fail MODIFIED_SIGNATURE_PASS", async function () {
-    expect(
+    await expect(
       nzcp.readCredSubjExample(
         MODIFIED_SIGNATURE_PASS.ToBeSigned, MODIFIED_SIGNATURE_PASS.rs)
     ).to.be.revertedWith("InvalidSignature()");
   });
   it("Should fail MODIFIED_PAYLOAD_PASS", async function () {
-    expect(
+    await expect(
       nzcp.readCredSubjExample(
         MODIFIED_PAYLOAD_PASS.ToBeSigned, MODIFIED_PAYLOAD_PASS.rs)
     ).to.be.revertedWith("InvalidSignature()");
   });
   it("Should fail EXPIRED_PASS", async function () {
-    expect(
+    await expect(
       nzcp.readCredSubjExample(
         EXPIRED_PASS.ToBeSigned, EXPIRED_PASS.rs)
     ).to.be.revertedWith("PassExpired()");
@@ -131,7 +131,7 @@ describe("NZCP - example pass URIs", function () {
   });
   it("Should fail on BAD_PUBLIC_KEY_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(BAD_PUBLIC_KEY_PASS_URI);
-    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
+    await expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
   });
   it("Should fail on PUBLIC_KEY_NOT_FOUND_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(PUBLIC_KEY_NOT_FOUND_PASS_URI);
@@ -140,15 +140,15 @@ describe("NZCP - example pass URIs", function () {
   });
   it("Should fail on MODIFIED_SIGNATURE_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(MODIFIED_SIGNATURE_PASS_URI);
-    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
+    await expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
   });
   it("Should fail on MODIFIED_PAYLOAD_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(MODIFIED_PAYLOAD_PASS_URI);
-    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
+    await expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("InvalidSignature()")
   });
   it("Should fail on EXPIRED_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(EXPIRED_PASS_URI);
-    expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("PassExpired()")
+    await expect(nzcp.readCredSubjExample(pass.ToBeSigned, pass.rs)).to.be.revertedWith("PassExpired()")
   });
   it("Should pass on NOT_ACTIVE_PASS_URI", async function () {
     const pass = getToBeSignedAndRs(NOT_ACTIVE_PASS_URI);
