@@ -45,7 +45,7 @@ contract EllipticCurve {
         uint q;
 
         while (r2 != 0) {
-            unchecked { // TODO: remove unchecked
+            unchecked {
                 q = r1 / r2;
                 (t1, t2, r1, r2) = (t2, t1 - int(q) * t2, r2, r1 - q * r2);
             }
